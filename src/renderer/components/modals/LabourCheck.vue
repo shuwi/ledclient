@@ -1,0 +1,179 @@
+<template>
+  <Modal id="new-labour-modal" v-model="visible" @on-visible-change="visibleChange" :mask-closable="false" :footer-hide="true"
+    width="800" style="padding-bottom:20px;">
+    <p slot="header">
+      <span style="font-weight:normal;">人员{{ status? '退':'进' }}场</span>
+    </p>
+    <Table border :columns="columns" :data="userlist" style="margin-bottom:20px;"></Table>
+    <Form ref="joinUser" :model="joinUser" :rules="ruleValidate">
+      <Row v-if="status">
+        <i-col span="24">
+          <FormItem label="评价" prop="evaluation">
+            <Input v-model="joinUser.evaluation" placeholder="请填写评价" type="textarea" :rows="4" />
+          </FormItem>
+        </i-col>
+      </Row>
+      <Row>
+        <FormItem>
+          <Button type="primary" @click="handleSubmit('joinUser')" shape="circle" style="width:100px;" :loading="loadingPostUser"
+            icon="md-checkmark">提交</Button>
+          <Button v-if="status" @click="handleReset('joinUser')" style="margin-left: 8px;width:100px;" shape="circle"
+            type="warning" icon="ios-undo">重置</Button>
+        </FormItem>
+      </Row>
+    </Form>
+  </Modal>
+</template>
+
+<script>
+  import axios from 'axios'
+  export default {
+    props: ['token', 'projectId', 'status', 'checkvisible', 'userlist'],
+    name: 'labour-check',
+    computed: {
+      visible: {
+        get: function () {
+          return this.checkvisible
+        },
+        set: function () {}
+      }
+    },
+    data () {
+      return {
+        joinUser: {
+          userId: '',
+          projectId: '',
+          joinStatus: '',
+          evaluation: ''
+        },
+        loadingPostUser: false,
+        ruleValidate: {
+          evaluation: [{
+            type: 'string',
+            min: 20,
+            max: 500,
+            message: '评价信息字符数在20-500之间',
+            trigger: 'blur'
+          }]
+        },
+        columns: [{
+          title: '姓名',
+          key: 'name'
+        },
+        {
+          title: '身份证号',
+          key: 'idcard'
+        }
+        ]
+      }
+    },
+    methods: {
+      resetInput () {
+        this.$refs['joinUser'].resetFields()
+      },
+      visibleChange (checkvisible) {
+        if (!checkvisible) {
+          this.$emit('visibleChange', false)
+          this.closeModal()
+        } else {
+          this.$emit('visibleChange', true)
+        }
+      },
+      closeModal () {
+        this.loadingPostUser = false
+        this.resetInput()
+      },
+      handleSubmit (name) {
+        var d = this.status ? 'joinOutUser' : 'joinInUser'
+        console.log(d)
+
+        var that = this
+  
+        console.log(that.status)
+        if (that.status) {
+          that.loadingPostUser = true
+          axios({
+            url: `http://192.168.20.190:8080/erp-web/client/${d}.whtml`,
+            data: {
+              joinUser: {
+                joinUser: [{
+                  userId: '533527198909210238',
+                  projectId: 2163,
+                  joinStatus: that.status ? '退场' : '进场'
+                }],
+                evaluation: '可还行？'
+              }
+            },
+            method: 'post',
+            headers: {
+              'Content-Type': 'application/json',
+              token: that.token
+            }
+          })
+            .then(function (data) {
+              console.log(data)
+              that.$Notice.success({
+                title: '提醒',
+                desc: data.data.msg
+              })
+            })
+            .catch(function (error) {
+              that.$Notice.error({
+                title: '提醒',
+                desc: '系统接口异常'
+              })
+              console.log(error)
+            })
+            .finally(() => {
+              that.loadingPostUser = false
+              that.closeModal()
+              that.$refs['joinUser'].resetFields()
+            })
+        }
+        if (!that.status) {
+          that.loadingPostUser = true
+          axios({
+            url: `http://192.168.20.190:8080/erp-web/client/${d}.whtml`,
+            data: {
+              joinUser: {
+                joinUser: [{
+                  userId: '533527198909210238',
+                  projectId: 2163,
+                  joinStatus: that.status ? '退场' : '进场'
+                }],
+                evaluation: '可还行？'
+              }
+            },
+            method: 'post',
+            headers: {
+              'Content-Type': 'application/json',
+              token: that.token
+            }
+          })
+            .then(function (data) {
+              console.log(data)
+              that.$Notice.success({
+                title: '提醒',
+                desc: data.data.msg
+              })
+            })
+            .catch(function (error) {
+              that.$Notice.error({
+                title: '提醒',
+                desc: '系统接口异常'
+              })
+              console.log(error)
+            })
+            .finally(() => {
+              that.loadingPostUser = false
+              that.closeModal()
+              that.$refs['joinUser'].resetFields()
+            })
+        }
+      },
+      handleReset (name) {
+        this.$refs[name].resetFields()
+      }
+    }
+  }
+</script>

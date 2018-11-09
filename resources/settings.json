@@ -1,0 +1,29 @@
+{
+  "activeBoard": 1,
+  "boards": [
+    {
+      "id": "default",
+      "label": "Default board",
+      "showDone": false,
+      "prependNewItem": false,
+      "items": []
+    }
+  ],
+  "appSettings": {
+    "wasImported": false,
+    "itemCreationDate": true,
+    "prependNewItems": true,
+    "showUpdates": true
+  },
+  "dbSettings": {
+    "isuse": "1",
+    "host": "localhost",
+    "user": "root",
+    "password": "demo123",
+    "database": "labour"
+  },
+  "checkinSettings": {
+    "checkinhost": "192.168.20.5",
+    "checkinport": "9922"
+  }
+}
