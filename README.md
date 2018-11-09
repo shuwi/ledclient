@@ -1,4 +1,4 @@
-# Backlog
+# LEDClient
 
 > Simple multiplatform desktop app for storing TODOs, ideas or backlog items.
 > You can organize them with boards as a plaintext or markdown. No dependencies, no internet connection required,
