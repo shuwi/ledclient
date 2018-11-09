@@ -24,6 +24,7 @@
           <checkin-settings />
         </p>
       </Panel>
+      <!--
       <Panel name="2">
         元数据获取
         <p slot="content">
@@ -32,6 +33,7 @@
           <Button shape="circle" class="btn" type="info" @click="cardtypepull">证件类型</Button>
         </p>
       </Panel>
+      -->
     </Collapse>
   </Modal>
 </template>

@@ -24,6 +24,6 @@
   },
   "checkinSettings": {
     "checkinhost": "192.168.20.5",
-    "checkinport": "9922"
+    "checkinport": "8888"
   }
 }

@@ -19,9 +19,8 @@
   import settingsRepository from '@/repositories/settingsRepository'
   export default {
     name: 'CheckinSettings',
-    computed: {
-    },
-    data () {
+    computed: {},
+    data() {
       return {
         formValidate: {
           host: '',
@@ -29,58 +28,60 @@
         },
         ruleValidate: {
           host: [{
-            required: true,
-            message: '主机必填',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 6,
-            message: '至少6个字符',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '主机必填',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 6,
+              message: '至少6个字符',
+              trigger: 'blur'
+            }
           ],
           port: [{
-            required: true,
-            message: '端口号必填',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 4,
-            message: '至少4个字符',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '端口号必填',
+              trigger: 'change'
+            },
+            {
+              type: 'string',
+              min: 4,
+              message: '至少4个字符',
+              trigger: 'blur'
+            }
           ]
         }
       }
     },
     methods: {
-      showSuccessNotification () {
+      showSuccessNotification() {
         this.$Message.success('信息已成功更新！')
         this.$emit('settingsUpdated')
       },
-      handleSubmit (name) {
+      handleSubmit(name) {
         this.$refs[name].validate((valid) => {
           if (valid) {
             this.$store.dispatch('setCheckinPort', this.formValidate.port)
             this.$store.dispatch('setCheckinHost', this.formValidate.host)
             this.showSuccessNotification()
+            this.$store.dispatch('hideSettingsModal')
           } else {
             this.$Message.error('请按要求填写后再提交')
           }
         })
       },
-      handleReset (name) {
+      handleReset(name) {
         this.$refs[name].resetFields()
       }
     },
-    mounted () {
+    mounted() {
       var db = settingsRepository.getCheckinSettings()
       this.formValidate.host = db.checkinhost
       this.formValidate.port = db.checkinport
     }
   }
+
 </script>
 
 <style scoped>

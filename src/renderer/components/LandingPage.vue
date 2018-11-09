@@ -2,103 +2,105 @@
   <div id="wrapper" :class="{'fixedTabs' : settings.stickBoardsOnTop}">
     <Row>
       <i-col span="24" style="height: 100%;">
-      <Tabs v-model="activeBoard" size="small" @on-click="saveActiveBoard" @dblclick.native="handleDblClick" :class="{'fixedTabs' : settings.stickBoardsOnTop}"
-        type="line">
-        <Tab-pane label="项目信息" class="tpane" icon="md-pie">
-          <div style="width:350px;margin:10px auto;">
-            <i-circle :size="350" :trail-width="4" :stroke-width="5" :percent="75" stroke-linecap="round" stroke-color="#2db7f5">
-              <div class="Circle-custom">
-                <h1>{{project.projectProgress}}</h1>
-                <p>{{project.name}}</p>
-                <span>
-                  {{project.place}}
-                </span>
-              </div>
-            </i-circle>
-          </div>
-        </Tab-pane>
-        <Tab-pane label="人员信息" class="tpane" icon="md-person">
-          <div style="display:flex;flex-direction:row;align-items:center;height:100%;align-items: flex-start;margin:0px auto;">
-            <div style="order:1;flex:1;width:250px;flex-shrink:0;height:100%;backgrouond:#ccc;">
-              <Tree :data="treedata" style="width:250px;height:100%;border-right:1px dashed #e8eaec;padding-left:10px;line-height:2em;"
-                @on-select-change="kindSelected"></Tree>
+        <Tabs v-model="activeBoard" size="small" @on-click="saveActiveBoard" @dblclick.native="handleDblClick" :class="{'fixedTabs' : settings.stickBoardsOnTop}"
+          type="line">
+          <Tab-pane label="项目信息" class="tpane" icon="md-pie">
+            <div style="width:350px;margin:10px auto;">
+              <i-circle :size="350" :trail-width="4" :stroke-width="5" :percent="75" stroke-linecap="round"
+                stroke-color="#2db7f5">
+                <div class="Circle-custom">
+                  <h1>{{project.projectProgress}}</h1>
+                  <p>{{project.name}}</p>
+                  <span>
+                    {{project.place}}
+                  </span>
+                </div>
+              </i-circle>
             </div>
-            <div style="order:2;padding:10px 25px;flex-grow:2;overflow:auto;margin:0;flex-shrink:1;">
-              <div style="margin:0 auto 20px auto;width:100%;">
-                <Input search placeholder="请输入关键字查询" style="width:300px;margin:0 10px 0 0;" suffix="ios-search" icon="ios-search"
-                  clearable @on-search="search" :value="keyword" />
-                <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showUserModal" v-if="canAddUser">添加人员</Button>
-                <Button shape="circle" icon="md-arrow-round-back" class="btn" type="info" @click="labourout">人员退场</Button>
-                <Button shape="circle" icon="md-arrow-round-forward" class="btn" type="success" @click="labourin">人员进场</Button>
-                <Button shape="circle" icon="ios-refresh" class="btn" type="warning" @click="testone">更新人员数据</Button>
+          </Tab-pane>
+          <Tab-pane label="人员信息" class="tpane" icon="md-person">
+            <div style="display:flex;flex-direction:row;align-items:center;height:100%;align-items: flex-start;margin:0px auto;">
+              <div style="order:1;flex:1;width:250px;flex-shrink:0;height:100%;backgrouond:#ccc;">
+                <Tree :data="treedata" style="width:250px;height:100%;border-right:1px dashed #e8eaec;padding-left:10px;line-height:2em;"
+                  @on-select-change="kindSelected"></Tree>
               </div>
-              <Table border width="100%" size="small" ref="selection" :columns="ucolumns" :data="udata"
-                @on-selection-change="laboursel"></Table>
-              <div style="margin:20px auto;width:100%;">
-                <Button @click="handleSelectAll(true)" type="info" shape="circle" style="width:100px;">全选</Button>
-                <Button @click="handleSelectAll(false)" type="warning" shape="circle" style="width:100px;">取消全选</Button>
-              </div>
-              <div style="margin:10px auto;width:100%;">
-                <Page :current="current" :total="total" simple style="float:right;" @on-change="userlistChange"
-                  :page-size="pagesize" />
+              <div style="order:2;padding:10px 25px;flex-grow:2;overflow:auto;margin:0;flex-shrink:1;">
+                <div style="margin:0 auto 20px auto;width:100%;">
+                  <Input search placeholder="请输入关键字查询" style="width:300px;margin:0 10px 0 0;" suffix="ios-search" icon="ios-search"
+                    clearable @on-search="search" :value="keyword" />
+                  <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showUserModal" v-if="canAddUser">添加人员</Button>
+                  <Button shape="circle" icon="md-arrow-round-back" class="btn" type="info" @click="labourout">人员退场</Button>
+                  <Button shape="circle" icon="md-arrow-round-forward" class="btn" type="success" @click="labourin">人员进场</Button>
+                  <Button shape="circle" icon="ios-refresh" class="btn" type="warning" @click="testone">更新人员数据</Button>
+                </div>
+                <Table border width="100%" size="small" ref="selection" :columns="ucolumns" :data="udata"
+                  @on-selection-change="laboursel"></Table>
+                <div style="margin:20px auto;width:100%;">
+                  <Button @click="handleSelectAll(true)" type="info" shape="circle" style="width:100px;">全选</Button>
+                  <Button @click="handleSelectAll(false)" type="warning" shape="circle" style="width:100px;">取消全选</Button>
+                </div>
+                <div style="margin:10px auto;width:100%;">
+                  <Page :current="current" :total="total" simple style="float:right;" @on-change="userlistChange"
+                    :page-size="pagesize" />
+                </div>
               </div>
             </div>
-          </div>
-        </Tab-pane>
-        <Tab-pane label="班组管理" class="tpane" icon="md-pulse">
-          <div style="margin:0 auto 20px auto;width:95%;">
-            <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showWorkerGroup">添加班组</Button>
-          </div>
-          <div style="margin:0 auto 20px auto;width:95%;">
-            <Table border :columns="classNoColumns" :data="classNoArr" @on-row-click="editWorkerGroup" width="100%"
-              size="small"></Table>
-          </div>
-        </Tab-pane>
-        <Tab-pane label="考勤设备管理" class="tpane" icon="logo-rss">
-          <div style="margin:0 auto 20px auto;width:95%;">
-            <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showMachineInfo">添加设备</Button>
-            <Button shape="circle" icon="md-create" class="btn" type="warning" @click="editMachineInfo">修改设备</Button>
-            <Button shape="circle" icon="md-close" class="btn" type="error" @click="delMachineInfoDialog">删除设备</Button>
-            <Button shape="circle" icon="ios-refresh" class="btn" type="info" @click="refreshMachineList">刷新列表</Button>
+          </Tab-pane>
+          <Tab-pane label="班组管理" class="tpane" icon="md-pulse">
+            <div style="margin:0 auto 20px auto;width:95%;">
+              <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showWorkerGroup">添加班组</Button>
+            </div>
+            <div style="margin:0 auto 20px auto;width:95%;">
+              <Table border :columns="classNoColumns" :data="classNoArr" @on-row-click="editWorkerGroup" width="100%"
+                size="small"></Table>
+            </div>
+          </Tab-pane>
+          <Tab-pane label="考勤设备管理" class="tpane" icon="logo-rss">
+            <div style="margin:0 auto 20px auto;width:95%;">
+              <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showMachineInfo">添加设备</Button>
+              <Button shape="circle" icon="md-create" class="btn" type="warning" @click="editMachineInfo">修改设备</Button>
+              <Button shape="circle" icon="md-close" class="btn" type="error" @click="delMachineInfoDialog">删除设备</Button>
+              <Button shape="circle" icon="ios-refresh" class="btn" type="info" @click="refreshMachineList">刷新列表</Button>
 
-            <Input search placeholder="请输入设备名称或序列号" style="width:200px;" suffix="ios-search" icon="ios-search"
-              clearable @on-change="search" />
-            <Dropdown style="margin-left: 20px" @on-click="dm" trigger="click">
-              <Button type="info" shape="circle">
-                命令集
-                <Icon type="ios-arrow-down" style="margin-left:6px;"></Icon>
-              </Button>
-              <DropdownMenu slot="list">
-                <DropdownItem name="RestartDevice()">重启设备</DropdownItem>
-                <DropdownItem divided name="refresh">同步设备时间</DropdownItem>
-                <DropdownItem name="GetDeviceInfo()">获取设备信息</DropdownItem>
-                <DropdownItem name="DeleteAllRecord()">清空考勤记录</DropdownItem>
-                <DropdownItem name="delone">移除个别人员</DropdownItem>
-                <DropdownItem name="DeleteAllEmployee()">删除所有人员</DropdownItem>
-                <DropdownItem name="oneman">手动下发人员信息</DropdownItem>
-                <DropdownItem divided name="history">历史命令查询</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-          <div style="margin:0 auto 20px auto;width:95%;">
-            <Table border width="100%" size="small" ref="selectedMachines" :columns="mcolumns" :data="mdata" @on-select="machinesel"></Table>
-          </div>
-          <div style="margin:0 auto 20px auto;width:95%;">
-            <Button @click="handleSelectAllMachines(true)" type="info" shape="circle" style="width:100px;">全选</Button>
-            <Button @click="handleSelectAllMachines(false)" type="warning" shape="circle" style="width:100px;">取消全选</Button>
-          </div>
-        </Tab-pane>
+              <Input search placeholder="请输入设备名称或序列号" style="width:200px;" suffix="ios-search" icon="ios-search"
+                clearable @on-change="search" />
+              <Dropdown style="margin-left: 20px" @on-click="dm" trigger="click">
+                <Button type="info" shape="circle">
+                  命令集
+                  <Icon type="ios-arrow-down" style="margin-left:6px;"></Icon>
+                </Button>
+                <DropdownMenu slot="list">
+                  <DropdownItem name="RestartDevice()">重启设备</DropdownItem>
+                  <DropdownItem divided name="refresh">同步设备时间</DropdownItem>
+                  <DropdownItem name="GetDeviceInfo()">获取设备信息</DropdownItem>
+                  <DropdownItem name="DeleteAllRecord()">清空考勤记录</DropdownItem>
+                  <DropdownItem name="delone">移除个别人员</DropdownItem>
+                  <DropdownItem name="DeleteAllEmployee()">删除所有人员</DropdownItem>
+                  <DropdownItem name="oneman">手动下发人员信息</DropdownItem>
+                  <DropdownItem divided name="history">历史命令查询</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+            <div style="margin:0 auto 20px auto;width:95%;">
+              <Table border width="100%" size="small" ref="selectedMachines" :columns="mcolumns" :data="mdata"
+                @on-select="machinesel"></Table>
+            </div>
+            <div style="margin:0 auto 20px auto;width:95%;">
+              <Button @click="handleSelectAllMachines(true)" type="info" shape="circle" style="width:100px;">全选</Button>
+              <Button @click="handleSelectAllMachines(false)" type="warning" shape="circle" style="width:100px;">取消全选</Button>
+            </div>
+          </Tab-pane>
 
-        <div slot="extra">
-          <ButtonGroup>
-            <Tooltip content="系统设置" placement="bottom-end" :transfer="true" :delay="500">
-              <Button @click="showSettingsModal" size="small" icon="ios-settings" style="margin-right: 12px; margin-top:2px;"
-                shape="circle">
-              </Button>
-            </Tooltip>
-          </ButtonGroup>
-        </div>
-      </Tabs>
+          <div slot="extra">
+            <ButtonGroup>
+              <Tooltip content="系统设置" placement="bottom-end" :transfer="true" :delay="500">
+                <Button @click="showSettingsModal" size="small" icon="ios-settings" style="margin-right: 12px; margin-top:2px;"
+                  shape="circle">
+                </Button>
+              </Tooltip>
+            </ButtonGroup>
+          </div>
+        </Tabs>
       </i-col>
     </Row>
     <footer @click="open('http://www.jsxywg.cn/')">
@@ -233,10 +235,6 @@
           {
             title: '班组',
             key: 'classNo'
-          },
-          {
-            title: '添加时间',
-            key: 'addtime'
           },
           {
             title: '籍贯',
@@ -381,7 +379,7 @@
           if (error) throw error
           that.mdata = results
         })
-        
+
         connection.query(
           `SELECT count(id) as total from worker where classNo like '${that.keyword}%'`,
           function (
@@ -439,10 +437,9 @@
           })
           return
         }
-        this.$store.dispatch('showNewBoardModal')
-        if (this.$store.state.modals.newBoard.isVisible.length === 1) {
-          console.log('this.sellist', this.sellist)
-        }
+        this.$store.dispatch('showNewBoardModal', {
+          id: 0
+        })
       },
       open(link) {
         this.$electron.shell.openExternal(link)
@@ -928,8 +925,8 @@
                         `INSERT INTO worker(userId,name,mobile,job,groupname,addtime,checkinState,checkinTime,
                       photo,projectId,workDate,urgentContractCellphone,urgentContractName,noBadMedicalHistory,
                       cultureLevelType,joinedTime,politicsType,birthPlaceCode,nation,idCardType,
-                      classNo,currentAddresss,personType,homeAddress,workKind,birthday,gender,ptype) 
-                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                      classNo,currentAddresss,personType,homeAddress,workKind,birthday,gender,ptype,beginnew,endnew) 
+                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                         [value.idcard, value.name, value.mobile, value.classNo, v.name, new Date(), 0,
                           null,
                           value.photo, that.$store.state.modals.login.projectId.id, value.workDate, value
@@ -938,7 +935,8 @@
                           value.cultureLevelType, value.joinedTime, value.politicsType, value.birthPlaceCode,
                           value.nation, value.idCardType,
                           value.classNo, value.currentAddresss, value.personType, value.homeAddress,
-                          value.workKind, value.birthday, value.gender, value.ptype
+                          value.workKind, value.birthday, value.gender, value.ptype, value.beginnew,
+                          value.endnew
                         ],
                         function (error, results, fields) {
                           if (error) {
@@ -982,7 +980,7 @@
           })
           return
         }
-        
+
         if (param.row.id > 0)
           this.$store.dispatch('showNewBoardModal', param.row)
       },
@@ -1081,7 +1079,8 @@
   }
 
   .ivu-modal-mask {
-    background: -webkit-linear-gradient(left,#e8eaec,#f8f8f9); /* Safari 5.1 - 6 */
+    background: -webkit-linear-gradient(left, #ffffff, #f8f8f9);
+    /* Safari 5.1 - 6 */
   }
 
   .ivu-modal-content {
@@ -1121,27 +1120,6 @@
     border-radius: 6px;
     background: #f8f8f9;
     border: 1px solid #e0e0e0;
-  }
-
-  -webkit-scrollbar {
-    /*滚动条整体样式*/
-    width: 10px;
-    /*高宽分别对应横竖滚动条的尺寸*/
-    height: 1px;
-  }
-
-  -webkit-scrollbar-thumb {
-    /*滚动条里面小方块*/
-    border-radius: 10px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-    background: #535353;
-  }
-
-  ::-webkit-scrollbar-track {
-    /*滚动条里面轨道*/
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    background: #EDEDED;
   }
 
 </style>

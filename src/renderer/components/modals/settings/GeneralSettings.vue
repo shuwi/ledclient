@@ -154,6 +154,7 @@
             this.$store.dispatch('setDBPassword', this.formValidate.password)
             this.$store.dispatch('setDBDataBase', this.formValidate.database)
             this.showSuccessNotification()
+            this.$store.dispatch('hideSettingsModal')
           } else {
             this.$Message.error('请按要求填写后再提交')
           }

@@ -3,10 +3,10 @@
     :footer-hide="true" width="850" :scrollable="true" class-name="vertical-center-modal">
     <p slot="header">
       <Icon type="md-person"></Icon>
-      <span style="font-weight:normal;">{{user.userId !== ''?'修改':'添加'}}人员</span>
+      <span style="font-weight:normal;">{{user.id !== 0?'修改':'添加'}}人员</span>
     </p>
     <Spin size="large" fix v-if="loadingPostUser"></Spin>
-    <Form ref="user" :model="user" :rules="ruleValidate" :label-width="100">
+    <Form ref="user" :model="user" :rules="ruleValidate" :label-width="110">
       <div class="container">
         <div>
           <FormItem label="证件类型" prop="idCardType">
@@ -16,7 +16,7 @@
           </FormItem>
         </div>
         <div>
-          <FormItem label="">
+          <FormItem label="" v-if="user.id === 0">
             <Button @click="getUserInfo" size="small" shape="circle" icon="md-wifi">身份证读取</Button>
           </FormItem>
         </div>
@@ -27,7 +27,7 @@
         </div>
         <div class="item-b">
           <FormItem label="" prop="photo">
-            <img :src="'data:image/bmp;base64,'+user.photo" width="100px">
+            <img v-if="typeof user.photo!=='undefined'" :src="'data:image/bmp;base64,'+user.photo" width="100px">
             <Input v-model="user.photo" style="display:none;" />
           </FormItem>
         </div>
@@ -159,6 +159,16 @@
           </FormItem>
         </div>
         <div>
+          <FormItem label="计划用工开始日期" prop="beginnew">
+            <DatePicker placeholder="请选择开始日期" v-model="user.beginnew" style="width:200px" format="yyyy-MM-dd"></DatePicker>
+          </FormItem>
+        </div>
+        <div>
+          <FormItem label="计划用工结束日期" prop="endnew">
+            <DatePicker placeholder="请选择结束日期" v-model="user.endnew" style="width:200px" format="yyyy-MM-dd"></DatePicker>
+          </FormItem>
+        </div>
+        <div>
           <FormItem label="所属总包项目">
             {{project.name}}
           </FormItem>
@@ -174,7 +184,7 @@
         </div>
         <div v-if="classNoVisible">
           <FormItem label="班组" prop="classNo">
-            <Select v-model="user.classNo" style="width:100px">
+            <Select v-model="user.classNo" style="width:100px" filterable>
               <Option v-for="item in classNoArr" :value="item.name" :key="item.id">{{ item.name }}</Option>
             </Select>
             <Button shape="circle" icon="md-add" class="btn" @click="showWorkerGroup" size="small">添加班组</Button>
@@ -189,7 +199,7 @@
         </div>
         <div>
           <FormItem label="工种" prop="workKind">
-            <Select v-model="user.workKind" style="width:200px" @on-change="workKindChange">
+            <Select v-model="user.workKind" style="width:200px" @on-change="workKindChange" filterable>
               <Option v-for="item in workKindArr" :value="item.id" :key="item.id">{{ item.kindName }}</Option>
             </Select>
           </FormItem>
@@ -348,7 +358,9 @@
           photo: '',
           workKindType: '1',
           workAccommodationType: 0,
-          card: {}
+          card: {},
+          beginnew: '',
+          endnew: ''
         },
         ruleValidate: {
           name: [{
@@ -480,13 +492,18 @@
           var that = this
 
           if (typeof that.$store.state.modals.newBoard.data !== 'undefined') {
-            that.user = that.$store.state.modals.newBoard.data
+            if (that.$store.state.modals.newBoard.data.id !== 0)
+              that.user = that.$store.state.modals.newBoard.data
 
             that.user.relbirthday = that.Toyyyy_MM_dd(that.user.birthday)
 
             that.user.workDateNew = that.user.workDate
             that.user.joinedTimeNew = that.user.joinedTime
-            console.log('that.user.joinedTimeNew = ', that.user.joinedTimeNew)
+            console.log('that.user = ', that.user)
+            that.user.beginnew = that.user.beginnew === null || that.user.beginnew === ''? that.$store.state.modals.login.projectId.begin : that.user
+              .beginnew
+            that.user.endnew = that.user.endnew === null || that.user.endnew === ''? that.$store.state.modals.login.projectId.end : that.user.endnew
+
           }
           if (that.$store.state.modals.login.token === '') {
             that.$Notice.success({
@@ -801,7 +818,7 @@
                 editUser: userdata
               }
             }
-
+            console.log('postdata = ', JSON.stringify(postdata))
             axios({
                 url: that.$store.state.modals.settings.baseURL + posturl,
                 data: postdata,
@@ -812,11 +829,18 @@
                 }
               })
               .then(function (data) {
-                that.userOpt(that.userdatatemp)
-                that.$Notice.success({
-                  title: '提醒',
-                  desc: data.data.msg
-                })
+                if (data.data.result === 1) {
+                  that.userOpt(that.userdatatemp)
+                  that.$Notice.success({
+                    title: '提醒',
+                    desc: data.data.message
+                  })
+                } else {
+                  that.$Notice.error({
+                    title: '提醒',
+                    desc: data.data.message
+                  })
+                }
                 console.log(data)
               })
               .catch(function (error) {
@@ -865,7 +889,9 @@
           'ptype',
           'currentAddresss',
           'workAccommodationType',
-          'workKindType'
+          'workKindType',
+          'beginnew',
+          'endnew'
         ]
 
         var stat =

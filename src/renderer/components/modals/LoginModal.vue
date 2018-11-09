@@ -1,6 +1,6 @@
 <template>
   <Modal id="new-board-modal" v-model="isVisible" @on-visible-change="visibleChange" :mask-closable="false"
-    :footer-hide="true" width="460" :closable="false">
+    :footer-hide="true" width="460" :closable="true" @on-cancel="closeApp">
     <p slot="header" style="text-align:center;">
       <span style="font-weight:normal;">系统登录</span>
     </p>
@@ -31,6 +31,7 @@
 
 <script>
   import axios from 'axios'
+  const remote = require('electron').remote
   export default {
     computed: {
       isVisible: {
@@ -72,6 +73,15 @@
       }
     },
     methods: {
+      closeApp () {
+        this.$Modal.confirm({
+          title: '确认',
+          content: '<p>确认关闭并退出本系统？</p>',
+          onOk: () => {
+            remote.app.quit()
+          }
+        })
+      },
       handleSubmit (name) {
         this.$refs[name].validate((valid) => {
           var that = this
