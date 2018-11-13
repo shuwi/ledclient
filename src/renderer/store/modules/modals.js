@@ -37,8 +37,8 @@ const state = {
     restartRequired: false,
     restartReqCloak: false,
     restartCountdown: 3,
-    //baseURL: 'http://192.168.1.157:7001/erp-web/client/'
-    baseURL: 'http://192.168.20.190:8081/erp-web/client/'
+    baseURL: 'http://192.168.1.157:7001/erp-web/client/'
+    //baseURL: 'http://192.168.20.190:8081/erp-web/client/'
   },
   moveToBoard: {
     isVisible: false,

@@ -357,7 +357,7 @@
           personType: '',
           photo: '',
           workKindType: '1',
-          workAccommodationType: 0,
+          workAccommodationType: '0',
           card: {},
           beginnew: '',
           endnew: ''
@@ -500,10 +500,10 @@
             that.user.workDateNew = that.user.workDate
             that.user.joinedTimeNew = that.user.joinedTime
             console.log('that.user = ', that.user)
-            that.user.beginnew = that.user.beginnew === null || that.user.beginnew === ''? that.$store.state.modals.login.projectId.begin : that.user
-              .beginnew
-            that.user.endnew = that.user.endnew === null || that.user.endnew === ''? that.$store.state.modals.login.projectId.end : that.user.endnew
-
+            that.user.beginnew = that.user.beginnew === null || that.user.beginnew === '' ? that.$store.state.modals.login
+              .projectId.begin : that.user.beginnew
+            that.user.endnew = that.user.endnew === null || that.user.endnew === '' ? that.$store.state.modals.login.projectId
+              .end : that.user.endnew
           }
           if (that.$store.state.modals.login.token === '') {
             that.$Notice.success({
@@ -818,7 +818,7 @@
                 editUser: userdata
               }
             }
-            console.log('postdata = ', JSON.stringify(postdata))
+
             axios({
                 url: that.$store.state.modals.settings.baseURL + posturl,
                 data: postdata,
@@ -933,9 +933,13 @@
                   title: '提醒',
                   desc: '查询异常'
                 })
-                return
+                that.loadingPostUser = false
+                that.closeModal()
+                that.$refs['user'].resetFields()
+                connection.end()
+                
               } else {
-
+                console.log('查询结果：',results)
                 if (results[0].total > 0) {
                   that.$Notice.error({
                     title: '提醒',
@@ -945,34 +949,36 @@
                   that.closeModal()
                   that.$refs['user'].resetFields()
                   connection.end()
-                  return
+                  
+                } else {
+                  connection.query(
+                    stat, statdata,
+                    function (error, results, fields) {
+                      if (error) {
+                        that.$Notice.error({
+                          title: '提醒',
+                          desc: '操作异常'
+                        })
+                        throw error
+                      } else {
+                        that.$Notice.success({
+                          title: '提醒',
+                          desc: '操作成功'
+                        })
+                      }
+                      that.loadingPostUser = false
+                      that.closeModal()
+                      that.$refs['user'].resetFields()
+                      
+                    }
+                  )
+                  connection.end()
                 }
 
               }
             }
           )
         }
-        connection.query(
-          stat, statdata,
-          function (error, results, fields) {
-            if (error) {
-              that.$Notice.error({
-                title: '提醒',
-                desc: '操作异常'
-              })
-              throw error
-            } else {
-              that.$Notice.success({
-                title: '提醒',
-                desc: '操作成功'
-              })
-            }
-            that.loadingPostUser = false
-            that.closeModal()
-            that.$refs['user'].resetFields()
-          }
-        )
-        connection.end()
       },
       setWorkKindSelected(v) {
         this.user.workKind = v

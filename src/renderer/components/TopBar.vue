@@ -4,12 +4,12 @@
     <div class="actionBtn-container">
       <div class="minimize actionBtn" @click="minimize">
         <Tooltip content="最小化" placement="bottom-end" :transfer="true" :delay="500">
-          <Icon type="ios-remove-circle" color="#ff9900"></Icon>
+          <Icon type="md-remove" color="#333"></Icon>
         </Tooltip>
       </div>
       <div class="close actionBtn" @click="closeApp">
         <Tooltip content="关闭" placement="bottom-end" :transfer="true" :delay="500">
-          <Icon type="ios-close-circle" color="#ed4014"></Icon>
+          <Icon type="md-close" color="#ed4014"></Icon>
         </Tooltip>
       </div>
     </div>
@@ -49,7 +49,7 @@
 <style scoped>
   .topBar {
     -webkit-app-region: drag;
-    background-color: #ffffff;
+    cursor: pointer;
     height: 36px;
     position: fixed;
     z-index: -1;
@@ -63,8 +63,8 @@
     text-align: center;
     color: rgb(68, 66, 66);
     font-size:12px;
-    font-weight: 600;
-    background:#f5f5f5;
+    font-weight: 400;
+    background:-webkit-gradient(linear,center top,center bottom,from(#f8f8f8),to(#f1f1f1));
   }
 
   .actionBtn-container {
@@ -76,15 +76,14 @@
 
   .actionBtn {
     -webkit-app-region: no-drag;
-    font-size: 15px;
+    font-size: 16px;
     width: 25px;
     height: 25px;
     text-align: center;
     -webkit-transition: all .3s;
     transition: all .3s;
-    line-height: 2em;
-    font-weight: bold;
     opacity: .7;
+    margin: 0 6px;
   }
 
   .actionBtn:hover {

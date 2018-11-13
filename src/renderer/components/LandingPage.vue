@@ -51,8 +51,7 @@
               <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showWorkerGroup">添加班组</Button>
             </div>
             <div style="margin:0 auto 20px auto;width:95%;">
-              <Table border :columns="classNoColumns" :data="classNoArr" @on-row-click="editWorkerGroup" width="100%"
-                size="small"></Table>
+              <Table border :columns="classNoColumns" :data="classNoArr" width="100%" size="small"></Table>
             </div>
           </Tab-pane>
           <Tab-pane label="考勤设备管理" class="tpane" icon="logo-rss">
@@ -194,6 +193,50 @@
           {
             title: '班组长身份证号码',
             key: 'teamIdNumber'
+          }, {
+            title: '操作',
+            key: 'action',
+            align: 'center',
+            className: 'address-table-info-column',
+            render: (h, params) => {
+              return h('div', [
+                
+                h('Button', {
+                  props: {
+                    type: 'primary',
+                    size: 'small',
+                    shape: 'circle',
+                    icon: 'ios-pricetag-outline'
+                  },
+                  style: {
+                    marginLeft: '0px',
+                    width: '80px'
+                  },
+                  on: {
+                    click: () => {
+                      this.editWorkerGroup(params.row)
+                    }
+                  }
+                }, '修改'),
+                h('Button', {
+                  props: {
+                    type: 'error',
+                    size: 'small',
+                    shape: 'circle',
+                    icon: 'md-trash'
+                  },
+                  style: {
+                    marginLeft: '10px',
+                    width: '80px'
+                  },
+                  on: {
+                    click: () => {
+                      this.delGroup(params.row)
+                    }
+                  }
+                }, '删除')
+              ])
+            }
           }
 
         ],
@@ -878,12 +921,15 @@
         that.$Spin.show()
         axios({
             url: that.$store.state.modals.settings.baseURL + 'queryUserProjectRole.whtml',
-            method: 'get',
-            params: {
-              projectId: that.$store.state.modals.login.projectId.id
+            method: 'post',
+            data: {
+              group: {
+                projectId: that.$store.state.modals.login.projectId.id,
+                name: ''
+              }
             },
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
+              'Content-Type': 'application/json',
               'token': that.$store.state.modals.login.token
             }
           })
@@ -935,8 +981,8 @@
                           value.cultureLevelType, value.joinedTime, value.politicsType, value.birthPlaceCode,
                           value.nation, value.idCardType,
                           value.classNo, value.currentAddresss, value.personType, value.homeAddress,
-                          value.workKind, value.birthday, value.gender, value.ptype, value.beginnew,
-                          value.endnew
+                          value.workKind, value.birthday, value.gender, value.ptype, value.planBeginDate,
+                          value.planEndDate
                         ],
                         function (error, results, fields) {
                           if (error) {
@@ -986,6 +1032,49 @@
       },
       changeWorkKind(v) {
         console.log('base v = ', v)
+      },
+      delGroup(v) {
+        this.$Modal.confirm({
+          title: '确认',
+          content: `<p>确认删除班组${v.name}？</p>`,
+          onOk: () => {
+            var that = this
+            axios({
+                url: that.$store.state.modals.settings.baseURL + 'deleteGroupInfo.whtml',
+                method: 'post',
+                data: {
+                  group: {
+                    projectId: that.$store.state.modals.login.projectId.id,
+                    name: v.name
+                  }
+                },
+                headers: {
+                  'Content-Type': 'application/json',
+                  'token': that.$store.state.modals.login.token
+                }
+              })
+              .then(function (data) {
+                console.log('删除：', data)
+                if (data.data.result === 1)
+                  that.$Notice.success({
+                    title: '提醒',
+                    desc: data.data.message
+                  })
+                else
+                  that.$Notice.error({
+                    title: '提醒',
+                    desc: '删除失败'
+                  })
+              })
+              .catch(function (error) {
+                that.$Notice.error({
+                  title: '提醒',
+                  desc: '删除失败！'
+                })
+                console.log(error)
+              })
+          }
+        })
       }
     }
   }
@@ -1004,9 +1093,9 @@
     z-index: 100;
     width: 100vw;
     left: 0px;
-    padding: 2px;
+    padding: 0px;
     background: #fff;
-    border-bottom: 1px solid #f8f8f9;
+    border-bottom: 1px solid #e7e7e7;
   }
 
   .ivu-tabs-tab-active .close-icon {
@@ -1079,12 +1168,12 @@
   }
 
   .ivu-modal-mask {
-    background: -webkit-linear-gradient(left, #ffffff, #f8f8f9);
+    background: -webkit-linear-gradient(top, #f5f5f5, #ffffff);
     /* Safari 5.1 - 6 */
   }
 
   .ivu-modal-content {
-    box-shadow: 2px 3px 26px rgba(0, 0, 0, 0.151);
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.151);
     margin-bottom: 30px;
   }
 

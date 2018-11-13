@@ -62,6 +62,7 @@
     margin-top: 3rem;
     overflow: hidden;
     font-size: 1.5rem;
+    background: -webkit-gradient(linear,center top,center bottom,from(#fff), to(#f8f8f8));
 
     #app {
       overflow: auto;
@@ -69,7 +70,7 @@
     }
 
     ::-webkit-scrollbar {
-      width: 8px;
+      width: 4px;
       height: 4px;
     }
 

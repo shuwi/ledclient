@@ -20,8 +20,9 @@
         <Input v-model="formValidate.database" placeholder="输入数据库名"></Input>
       </FormItem>
       <FormItem>
-        <Button shape="circle" type="primary" @click="handleSubmit('formValidate')" style="width:120px;">提交</Button>
-        <Button shape="circle" @click="handleReset('formValidate')" style="width:120px;margin-left:8px;">重置</Button>
+        <Button shape="circle" type="primary" @click="handleSubmit('formValidate')" style="width:110px;">提交</Button>
+        <Button shape="circle" @click="handleReset('formValidate')" style="width:110px;margin-left:8px;">重置</Button>
+        <Button shape="circle" @click="handleTest" style="width:110px;margin-left:8px;" type="info">测试连接</Button>
       </FormItem>
     </Form>
   </div>
@@ -33,53 +34,53 @@
     name: 'GeneralSettings',
     computed: {
       prependNewItems: {
-        get () {
+        get() {
           return this.$store.state.settings.prependNewItems
         },
-        set (val) {
+        set(val) {
           this.$store.dispatch('setPrependNewItem', val)
           this.showSuccessNotification()
         }
       },
       markdownMode: {
-        get () {
+        get() {
           return this.$store.state.settings.markdownMode
         },
-        set (val) {
+        set(val) {
           this.$store.dispatch('setMarkdownMode', val)
           this.showSuccessNotification()
         }
       },
       darkTheme: {
-        get () {
+        get() {
           return this.$store.state.settings.darkTheme
         },
-        set (val) {
+        set(val) {
           this.$store.dispatch('setDarkTheme', val)
           this.$store.dispatch('setRestartRequired')
           this.showSuccessNotification()
         }
       },
       itemCreationDate: {
-        get () {
+        get() {
           return this.$store.state.settings.itemCreationDate
         },
-        set (val) {
+        set(val) {
           this.$store.dispatch('setItemCreationDate', val)
           this.showSuccessNotification()
         }
       },
       stickBoardsOnTop: {
-        get () {
+        get() {
           return this.$store.state.settings.stickBoardsOnTop
         },
-        set (val) {
+        set(val) {
           this.$store.dispatch('setStickBoardsOnTop', val)
           this.showSuccessNotification()
         }
       }
     },
-    data () {
+    data() {
       return {
         formValidate: {
           isuse: '1',
@@ -90,62 +91,62 @@
         },
         ruleValidate: {
           user: [{
-            required: true,
-            message: '用户名必填',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 4,
-            message: '至少4个字符',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '用户名必填',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 4,
+              message: '至少4个字符',
+              trigger: 'blur'
+            }
           ],
           host: [{
-            required: true,
-            message: '主机必填',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 6,
-            message: '至少6个字符',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '主机必填',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 6,
+              message: '至少6个字符',
+              trigger: 'blur'
+            }
           ],
           password: [{
-            required: true,
-            message: '数据库密码必填',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 6,
-            message: '至少6个字符',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '数据库密码必填',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 6,
+              message: '至少6个字符',
+              trigger: 'blur'
+            }
           ],
           database: [{
-            required: true,
-            message: '数据库名必填',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 4,
-            message: '至少4个字符',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '数据库名必填',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 4,
+              message: '至少4个字符',
+              trigger: 'blur'
+            }
           ]
         }
       }
     },
     methods: {
-      showSuccessNotification () {
+      showSuccessNotification() {
         this.$Message.success('信息已成功更新！')
         this.$emit('settingsUpdated')
       },
-      handleSubmit (name) {
+      handleSubmit(name) {
         this.$refs[name].validate((valid) => {
           if (valid) {
             this.$store.dispatch('setDBIsUse', this.formValidate.isuse)
@@ -160,11 +161,30 @@
           }
         })
       },
-      handleReset (name) {
+      handleReset(name) {
         this.$refs[name].resetFields()
+      },
+      handleTest() {
+        var mysql = require('mysql')
+        var that = this
+        var connection = mysql.createConnection({
+          host: that.formValidate.host,
+          user: that.formValidate.user,
+          password: that.formValidate.password,
+          database: that.formValidate.database
+        });
+
+        connection.connect()
+        connection.ping(function (err) {
+          if (err) {
+            that.$Message.error(`数据库${that.formValidate.database}连接失败！`)
+          } else {
+            that.$Message.success(`数据库${that.formValidate.database}连接成功！`)
+          }
+        })
       }
     },
-    mounted () {
+    mounted() {
       var db = settingsRepository.getDBSettings()
       this.formValidate.isuse = db.isuse
       this.formValidate.database = db.database
@@ -173,6 +193,7 @@
       this.formValidate.user = db.user
     }
   }
+
 </script>
 
 <style scoped>
