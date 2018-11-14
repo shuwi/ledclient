@@ -1,5 +1,5 @@
 {
-  "activeBoard": 2,
+  "activeBoard": 1,
   "boards": [
     {
       "id": "default",
@@ -24,6 +24,6 @@
   },
   "checkinSettings": {
     "checkinhost": "192.168.20.5",
-    "checkinport": "8888"
+    "checkinport": "9922"
   }
 }

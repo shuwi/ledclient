@@ -903,6 +903,7 @@
 
         var statdata = []
         statlist.forEach(function (v, i, a) {
+          console.log(`userdata[${v}] = `, userdata[v])
           statdata.push(userdata[v])
         })
         var mysql = require('mysql')
@@ -920,65 +921,30 @@
 
         delete db.isuse
         var connection = mysql.createConnection(db)
-
         connection.connect()
-        //新增前判断是否已存在工人信息
-        if (that.$store.state.modals.newBoard.userid <= 0) {
-          connection.query(
-            'SELECT COUNT(id) as total FROM `worker` WHERE `userId` = ?',
-            userdata.userId,
-            function (error, results, fields) {
-              if (error) {
-                that.$Notice.error({
-                  title: '提醒',
-                  desc: '查询异常'
-                })
-                that.loadingPostUser = false
-                that.closeModal()
-                that.$refs['user'].resetFields()
-                connection.end()
-                
-              } else {
-                console.log('查询结果：',results)
-                if (results[0].total > 0) {
-                  that.$Notice.error({
-                    title: '提醒',
-                    desc: '工人信息已存在！'
-                  })
-                  that.loadingPostUser = false
-                  that.closeModal()
-                  that.$refs['user'].resetFields()
-                  connection.end()
-                  
-                } else {
-                  connection.query(
-                    stat, statdata,
-                    function (error, results, fields) {
-                      if (error) {
-                        that.$Notice.error({
-                          title: '提醒',
-                          desc: '操作异常'
-                        })
-                        throw error
-                      } else {
-                        that.$Notice.success({
-                          title: '提醒',
-                          desc: '操作成功'
-                        })
-                      }
-                      that.loadingPostUser = false
-                      that.closeModal()
-                      that.$refs['user'].resetFields()
-                      
-                    }
-                  )
-                  connection.end()
-                }
-
-              }
+        connection.query(
+          stat, statdata,
+          function (error, results, fields) {
+            if (error) {
+              that.$Notice.error({
+                title: '提醒',
+                desc: '操作异常'
+              })
+              throw error
+            } else {
+              that.$Notice.success({
+                title: '提醒',
+                desc: '操作成功'
+              })
             }
-          )
-        }
+            that.loadingPostUser = false
+            that.closeModal()
+            that.$refs['user'].resetFields()
+
+          }
+        )
+        connection.end()
+
       },
       setWorkKindSelected(v) {
         this.user.workKind = v

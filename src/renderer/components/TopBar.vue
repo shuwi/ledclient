@@ -4,12 +4,12 @@
     <div class="actionBtn-container">
       <div class="minimize actionBtn" @click="minimize">
         <Tooltip content="最小化" placement="bottom-end" :transfer="true" :delay="500">
-          <Icon type="md-remove" color="#333"></Icon>
+          <Icon type="md-remove" color="#000"></Icon>
         </Tooltip>
       </div>
       <div class="close actionBtn" @click="closeApp">
         <Tooltip content="关闭" placement="bottom-end" :transfer="true" :delay="500">
-          <Icon type="md-close" color="#ed4014"></Icon>
+          <Icon type="md-close" color="rgb(255, 0, 0)"></Icon>
         </Tooltip>
       </div>
     </div>
@@ -22,15 +22,15 @@
   export default {
     name: 'TopBar',
     computed: {
-      version () {
+      version() {
         return this.$store.state.modals.settings.currentVersion
       },
-      appname () {
+      appname() {
         return this.$store.state.modals.settings.appName
       }
     },
     methods: {
-      closeApp () {
+      closeApp() {
         this.$Modal.confirm({
           title: '确认',
           content: '<p>确认关闭并退出本系统？</p>',
@@ -39,11 +39,12 @@
           }
         })
       },
-      minimize () {
+      minimize() {
         remote.BrowserWindow.getFocusedWindow().minimize()
       }
     }
   }
+
 </script>
 
 <style scoped>
@@ -61,10 +62,9 @@
     transition: all .3s;
     user-select: none;
     text-align: center;
-    color: rgb(68, 66, 66);
-    font-size:12px;
-    font-weight: 400;
-    background:-webkit-gradient(linear,center top,center bottom,from(#f8f8f8),to(#f1f1f1));
+    color: rgb(49, 49, 49);
+    font-size: 12px;
+    font-weight: 500;
   }
 
   .actionBtn-container {
@@ -90,12 +90,8 @@
     opacity: 1;
   }
 
-  .actionBtn.close:hover {
-    color: #f51a06;
-  }
-
   .close {
-    margin: 0 8px 0 0;
+    margin: 0 10px 0 0;
   }
 
 </style>

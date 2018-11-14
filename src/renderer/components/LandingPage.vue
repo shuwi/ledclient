@@ -4,9 +4,9 @@
       <i-col span="24" style="height: 100%;">
         <Tabs v-model="activeBoard" size="small" @on-click="saveActiveBoard" @dblclick.native="handleDblClick" :class="{'fixedTabs' : settings.stickBoardsOnTop}"
           type="line">
-          <Tab-pane label="项目信息" class="tpane" icon="md-pie">
+          <Tab-pane label="项目信息" class="tpane" icon="ios-keypad">
             <div style="width:350px;margin:10px auto;">
-              <i-circle :size="350" :trail-width="4" :stroke-width="5" :percent="75" stroke-linecap="round"
+              <i-circle :size="350" :trail-width="4" :stroke-width="5" :percent="100" stroke-linecap="round"
                 stroke-color="#2db7f5">
                 <div class="Circle-custom">
                   <h1>{{project.projectProgress}}</h1>
@@ -18,7 +18,7 @@
               </i-circle>
             </div>
           </Tab-pane>
-          <Tab-pane label="人员信息" class="tpane" icon="md-person">
+          <Tab-pane label="人员信息" class="tpane" icon="ios-keypad">
             <div style="display:flex;flex-direction:row;align-items:center;height:100%;align-items: flex-start;margin:0px auto;">
               <div style="order:1;flex:1;width:250px;flex-shrink:0;height:100%;backgrouond:#ccc;">
                 <Tree :data="treedata" style="width:250px;height:100%;border-right:1px dashed #e8eaec;padding-left:10px;line-height:2em;"
@@ -31,13 +31,13 @@
                   <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showUserModal" v-if="canAddUser">添加人员</Button>
                   <Button shape="circle" icon="md-arrow-round-back" class="btn" type="info" @click="labourout">人员退场</Button>
                   <Button shape="circle" icon="md-arrow-round-forward" class="btn" type="success" @click="labourin">人员进场</Button>
-                  <Button shape="circle" icon="ios-refresh" class="btn" type="warning" @click="testone">更新人员数据</Button>
+                  <Button shape="circle" icon="ios-refresh" class="btn" type="warning" @click="testone">更新数据</Button>
                 </div>
                 <Table border width="100%" size="small" ref="selection" :columns="ucolumns" :data="udata"
                   @on-selection-change="laboursel"></Table>
                 <div style="margin:20px auto;width:100%;">
-                  <Button @click="handleSelectAll(true)" type="info" shape="circle" style="width:100px;">全选</Button>
-                  <Button @click="handleSelectAll(false)" type="warning" shape="circle" style="width:100px;">取消全选</Button>
+                  <Button @click="handleSelectAll(true)" shape="circle" style="width:100px;">全选</Button>
+                  <Button @click="handleSelectAll(false)" shape="circle" style="width:100px;">取消全选</Button>
                 </div>
                 <div style="margin:10px auto;width:100%;">
                   <Page :current="current" :total="total" simple style="float:right;" @on-change="userlistChange"
@@ -46,15 +46,15 @@
               </div>
             </div>
           </Tab-pane>
-          <Tab-pane label="班组管理" class="tpane" icon="md-pulse">
+          <Tab-pane label="班组信息" class="tpane" icon="ios-keypad">
             <div style="margin:0 auto 20px auto;width:95%;">
-              <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showWorkerGroup">添加班组</Button>
+              <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showWorkerGroup" v-if="canAddUser">添加班组</Button>
             </div>
             <div style="margin:0 auto 20px auto;width:95%;">
               <Table border :columns="classNoColumns" :data="classNoArr" width="100%" size="small"></Table>
             </div>
           </Tab-pane>
-          <Tab-pane label="考勤设备管理" class="tpane" icon="logo-rss">
+          <Tab-pane label="考勤设备" class="tpane" icon="ios-keypad">
             <div style="margin:0 auto 20px auto;width:95%;">
               <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showMachineInfo">添加设备</Button>
               <Button shape="circle" icon="md-create" class="btn" type="warning" @click="editMachineInfo">修改设备</Button>
@@ -85,8 +85,8 @@
                 @on-select="machinesel"></Table>
             </div>
             <div style="margin:0 auto 20px auto;width:95%;">
-              <Button @click="handleSelectAllMachines(true)" type="info" shape="circle" style="width:100px;">全选</Button>
-              <Button @click="handleSelectAllMachines(false)" type="warning" shape="circle" style="width:100px;">取消全选</Button>
+              <Button @click="handleSelectAllMachines(true)" shape="circle" style="width:100px;">全选</Button>
+              <Button @click="handleSelectAllMachines(false)" shape="circle" style="width:100px;">取消全选</Button>
             </div>
           </Tab-pane>
 
@@ -199,43 +199,43 @@
             align: 'center',
             className: 'address-table-info-column',
             render: (h, params) => {
-              return h('div', [
-                
-                h('Button', {
-                  props: {
-                    type: 'primary',
-                    size: 'small',
-                    shape: 'circle',
-                    icon: 'ios-pricetag-outline'
-                  },
-                  style: {
-                    marginLeft: '0px',
-                    width: '80px'
-                  },
-                  on: {
-                    click: () => {
-                      this.editWorkerGroup(params.row)
+              if (this.$store.state.modals.login.mode !== '0')
+                return h('div', [
+                  h('Button', {
+                    props: {
+                      type: 'primary',
+                      size: 'small',
+                      shape: 'circle',
+                      icon: 'ios-pricetag-outline'
+                    },
+                    style: {
+                      marginLeft: '0px',
+                      width: '80px'
+                    },
+                    on: {
+                      click: () => {
+                        this.editWorkerGroup(params.row)
+                      }
                     }
-                  }
-                }, '修改'),
-                h('Button', {
-                  props: {
-                    type: 'error',
-                    size: 'small',
-                    shape: 'circle',
-                    icon: 'md-trash'
-                  },
-                  style: {
-                    marginLeft: '10px',
-                    width: '80px'
-                  },
-                  on: {
-                    click: () => {
-                      this.delGroup(params.row)
+                  }, '修改'),
+                  h('Button', {
+                    props: {
+                      type: 'error',
+                      size: 'small',
+                      shape: 'circle',
+                      icon: 'md-trash'
+                    },
+                    style: {
+                      marginLeft: '10px',
+                      width: '80px'
+                    },
+                    on: {
+                      click: () => {
+                        this.delGroup(params.row)
+                      }
                     }
-                  }
-                }, '删除')
-              ])
+                  }, '删除')
+                ])
             }
           }
 
@@ -290,58 +290,95 @@
             align: 'center',
             className: 'address-table-info-column',
             render: (h, params) => {
-              return h('div', [
-                h('Button', {
-                  props: {
-                    type: 'info',
-                    size: 'small',
-                    shape: 'circle',
-                    icon: 'ios-search'
-                  },
-                  style: {
-                    marginRight: '10px',
-                    width: '80px'
-                  },
-                  on: {
-                    click: () => {
-                      this.show(params.index)
+              if (this.$store.state.modals.login.mode !== '0')
+                return h('div', [
+                  h('Button', {
+                    props: {
+                      type: 'info',
+                      size: 'small',
+                      shape: 'circle',
+                      icon: 'ios-search'
+                    },
+                    style: {
+                      marginRight: '10px',
+                      width: '80px'
+                    },
+                    on: {
+                      click: () => {
+                        this.show(params.index)
+                      }
                     }
-                  }
-                }, '查看'),
-                h('Button', {
-                  props: {
-                    type: 'primary',
-                    size: 'small',
-                    shape: 'circle',
-                    icon: 'ios-pricetag-outline'
-                  },
-                  style: {
-                    marginRight: '10px',
-                    width: '80px'
-                  },
-                  on: {
-                    click: () => {
-                      this.editUser(params)
+                  }, '查看'),
+                  h('Button', {
+                    props: {
+                      type: 'primary',
+                      size: 'small',
+                      shape: 'circle',
+                      icon: 'ios-pricetag-outline'
+                    },
+                    style: {
+                      marginRight: '10px',
+                      width: '80px'
+                    },
+                    on: {
+                      click: () => {
+                        this.editUser(params)
+                      }
                     }
-                  }
-                }, '修改'),
-                h('Button', {
-                  props: {
-                    type: 'success',
-                    size: 'small',
-                    shape: 'circle',
-                    icon: 'md-wifi'
-                  },
-                  style: {
-                    width: '80px'
-                  },
-                  on: {
-                    click: () => {
-                      this.checkin(params.index)
+                  }, '修改'),
+                  h('Button', {
+                    props: {
+                      type: 'success',
+                      size: 'small',
+                      shape: 'circle',
+                      icon: 'md-wifi'
+                    },
+                    style: {
+                      width: '80px'
+                    },
+                    on: {
+                      click: () => {
+                        this.checkin(params.index)
+                      }
                     }
-                  }
-                }, '登记')
-              ])
+                  }, '登记')
+                ])
+              else
+                return h('div', [
+                  h('Button', {
+                    props: {
+                      type: 'info',
+                      size: 'small',
+                      shape: 'circle',
+                      icon: 'ios-search'
+                    },
+                    style: {
+                      marginRight: '10px',
+                      width: '80px'
+                    },
+                    on: {
+                      click: () => {
+                        this.show(params.index)
+                      }
+                    }
+                  }, '查看'),
+                  h('Button', {
+                    props: {
+                      type: 'success',
+                      size: 'small',
+                      shape: 'circle',
+                      icon: 'md-wifi'
+                    },
+                    style: {
+                      width: '80px'
+                    },
+                    on: {
+                      click: () => {
+                        this.checkin(params.index)
+                      }
+                    }
+                  }, '登记')
+                ])
             }
           }
         ],
@@ -600,8 +637,26 @@
           desc: 'Here is the notification description. Here is the notification description. '
         })
       },
+      //人员登记
       checkin(params) {
-        this.$Spin.show()
+        this.$Spin.show({
+          render: (h) => {
+            return h('div', [
+              h('Circle', {
+                'class': 'demo-spin-icon-load',
+                props: {
+                  'stroke-color': '#ff5500',
+                  percent: 18
+                },
+                attrs: {
+                  'stroke-color': '#ff5500',
+                  percent: 18
+                },
+              }, '18%'),
+              h('div', '操作中，请稍后...')
+            ])
+          }
+        });
         setTimeout(() => {
           this.$Spin.hide()
         }, 1000 * 60)
@@ -916,6 +971,7 @@
           this.hideMachineInfo()
         }
       },
+      //线上拉取人员数据
       testone() {
         var that = this
         that.$Spin.show()
@@ -934,7 +990,7 @@
             }
           })
           .then(function (data) {
-            console.log('data = ', data)
+
             if (data.data.list.classInfo.length <= 0) {
               that.$Notice.error({
                 title: '提醒',
@@ -959,13 +1015,14 @@
             workers.forEach(function (v, i, a) {
               v.workers.forEach(function (value, index, arr) {
                 connection.query(
-                  `SELECT COUNT(id) as countnum from worker WHERE projectId=${that.$store.state.modals.login.projectId.id} AND userId='${value.userId}'`,
+                  `SELECT COUNT(id) as countnum from worker WHERE projectId='${that.$store.state.modals.login.projectId.id}' AND userId='${value.idcard}'`,
                   function (error, results, fields) {
                     if (error) {
                       return connection.rollback(function () {
                         throw error
                       })
                     }
+
                     if (results[0].countnum === 0) {
                       connection.query(
                         `INSERT INTO worker(userId,name,mobile,job,groupname,addtime,checkinState,checkinTime,
@@ -1026,53 +1083,95 @@
           })
           return
         }
-
+        console.log('param.row = ', param.row)
         if (param.row.id > 0)
           this.$store.dispatch('showNewBoardModal', param.row)
       },
       changeWorkKind(v) {
         console.log('base v = ', v)
       },
+      //删除班组
       delGroup(v) {
         this.$Modal.confirm({
           title: '确认',
           content: `<p>确认删除班组${v.name}？</p>`,
           onOk: () => {
             var that = this
-            axios({
-                url: that.$store.state.modals.settings.baseURL + 'deleteGroupInfo.whtml',
-                method: 'post',
-                data: {
-                  group: {
-                    projectId: that.$store.state.modals.login.projectId.id,
-                    name: v.name
-                  }
-                },
-                headers: {
-                  'Content-Type': 'application/json',
-                  'token': that.$store.state.modals.login.token
-                }
-              })
-              .then(function (data) {
-                console.log('删除：', data)
-                if (data.data.result === 1)
-                  that.$Notice.success({
-                    title: '提醒',
-                    desc: data.data.message
-                  })
-                else
+            var mysql = require('mysql')
+            var db = JSON.parse(
+              JSON.stringify(settingsRepository.getDBSettings())
+            )
+            if (db.isuse === '0') return
+            delete db.isuse
+            var connection = mysql.createConnection(db)
+            connection.connect()
+            connection.query(
+              `SELECT COUNT(id) as countnum from worker WHERE classNo='${v.name}'`,
+              function (error, results, fields) {
+                if (error) {
                   that.$Notice.error({
                     title: '提醒',
-                    desc: '删除失败'
+                    desc: '本地数据库异常'
                   })
-              })
-              .catch(function (error) {
-                that.$Notice.error({
-                  title: '提醒',
-                  desc: '删除失败！'
-                })
-                console.log(error)
-              })
+                  return
+                }
+                if (results[0].countnum > 0) {
+                  that.$Notice.error({
+                    title: '提醒',
+                    desc: '该班组下存在工人信息，不予删除'
+                  })
+                  return
+                }
+                connection.query(
+                  `DELETE FROM classno WHERE name = '${v.name}'`,
+                  function (error, results, fields) {
+                    if (error) {
+                      throw error
+                    } else {
+                      axios({
+                          url: that.$store.state.modals.settings.baseURL + 'deleteGroupInfo.whtml',
+                          method: 'post',
+                          data: {
+                            group: {
+                              projectId: that.$store.state.modals.login.projectId.id,
+                              name: v.name
+                            }
+                          },
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'token': that.$store.state.modals.login.token
+                          }
+                        })
+                        .then(function (data) {
+                          console.log('删除：', data)
+                          if (data.data.result === 1)
+                            that.$Notice.success({
+                              title: '提醒',
+                              desc: data.data.message
+                            })
+                          else
+                            that.$Notice.error({
+                              title: '提醒',
+                              desc: '远程删除失败'
+                            })
+                        })
+                        .catch(function (error) {
+                          that.$Notice.error({
+                            title: '提醒',
+                            desc: '远程删除异常！'
+                          })
+                          console.log(error)
+                        })
+                        .finally(() => {
+                          that.classNoGet()
+                        })
+                    }
+                  }
+                )
+
+              }
+            )
+
           }
         })
       }
@@ -1095,7 +1194,7 @@
     left: 0px;
     padding: 0px;
     background: #fff;
-    border-bottom: 1px solid #e7e7e7;
+    border-bottom: 1px solid #f0f0f0;
   }
 
   .ivu-tabs-tab-active .close-icon {
@@ -1117,7 +1216,7 @@
   footer {
     position: fixed;
     bottom: 0;
-    background: #f8f8f9;
+    border-top: 1px solid #f0f0f0;
     color: rgb(150, 150, 150);
     text-align: center;
     width: 100%;
@@ -1163,13 +1262,16 @@
     font-size: 12.5px;
   }
 
+  .ivu-tabs-mini .ivu-tabs-tab {
+    padding: 8px 26px;
+}
+
   .btn {
     margin-right: 10px;
   }
 
   .ivu-modal-mask {
-    background: -webkit-linear-gradient(top, #f5f5f5, #ffffff);
-    /* Safari 5.1 - 6 */
+    background: rgba(255, 255, 255, 0.911);
   }
 
   .ivu-modal-content {

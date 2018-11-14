@@ -34,6 +34,12 @@
       if (this.settings.darkTheme) {
         document.querySelector('body').classList.add('darkTheme')
       } */
+      var schedule = require('node-schedule')
+      var rule = new schedule.RecurrenceRule()
+      rule.second = 10
+      var j = schedule.scheduleJob(rule, function () {
+        console.log('现在时间：', new Date())
+      })
     }
   }
 
@@ -62,11 +68,12 @@
     margin-top: 3rem;
     overflow: hidden;
     font-size: 1.5rem;
-    background: -webkit-gradient(linear,center top,center bottom,from(#fff), to(#f8f8f8));
+    background: #fff;
 
     #app {
       overflow: auto;
       height: 90vh !important;
+      
     }
 
     ::-webkit-scrollbar {
@@ -83,11 +90,12 @@
     /*定义滑块 内阴影+圆角*/
     ::-webkit-scrollbar-thumb {
       border-radius: 10px;
-      -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
       background: #797979;
     }
 
   }
+
 
   .vb>.vb-dragger {
     z-index: 5;

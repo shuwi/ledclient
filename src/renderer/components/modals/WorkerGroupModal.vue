@@ -41,19 +41,20 @@
 
 <script>
   import axios from 'axios'
+  import settingsRepository from '@/repositories/settingsRepository'
   export default {
     name: 'worker-group-modal',
     computed: {
       isVisible: {
-        get () {
+        get() {
           return this.$store.state.modals.workerGroup.isVisible
         },
-        set (value) {
+        set(value) {
           this.$store.state.modals.workerGroup.isVisible = value
         }
       }
     },
-    data () {
+    data() {
       return {
         formInline: {
           name: '',
@@ -71,22 +72,22 @@
             trigger: 'blur'
           }],
           teamLeader: [{
-            required: true,
-            message: '请输入联系人',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 2,
-            message: '至少2位',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '请输入联系人',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 2,
+              message: '至少2位',
+              trigger: 'blur'
+            }
           ]
         }
       }
     },
     methods: {
-      handleSubmit (name) {
+      handleSubmit(name) {
         this.$refs[name].validate((valid) => {
           var that = this
           if (valid) {
@@ -107,18 +108,19 @@
               postgroup.id = that.$store.state.modals.workerGroup.data.id
             }
             axios({
-              url: posturl,
-              data: {
-                group: postgroup
-              },
-              method: 'post',
-              headers: {
-                'Content-Type': 'application/json',
-                'token': that.$store.state.modals.login.token
-              }
-            })
+                url: posturl,
+                data: {
+                  group: postgroup
+                },
+                method: 'post',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'token': that.$store.state.modals.login.token
+                }
+              })
               .then(function (data) {
                 if (data.data.code === '0') {
+                  that.userOpt(postgroup)
                   that.$Notice.success({
                     title: '提醒',
                     desc: data.data.msg
@@ -129,7 +131,7 @@
                     desc: data.data.msg
                   })
                 }
-                console.log('handleSubmit',data)
+                console.log('handleSubmit', data)
               })
               .catch(function (error) {
                 that.$Notice.error({
@@ -152,11 +154,76 @@
           }
         })
       },
-      visibleChange (isVisible) {
+      userOpt(dat) {
+        var statlist = [
+          'projectId',
+          'name',
+          'teamLeader',
+          'contract',
+          'teamIdNumber',
+          'responseIdNumber',
+          'memo',
+          'createUser'
+        ]
+
+        var stat =
+          `INSERT INTO classno(${statlist.join(',')}) VALUES (${new Array(statlist.length).fill('?').join(',')})`
+        if (typeof dat.id !== 'undefined')
+          if (dat.id > 0)
+            stat =
+            `UPDATE classno SET ${statlist.join(' = ?, ')} = ? WHERE projectId = '${dat.projectId}' AND name = '${dat.name}'`
+        
+        var statdata = []
+        statlist.forEach(function (v, i, a) {
+          statdata.push(dat[v])
+        })
+        var mysql = require('mysql')
+        var db = JSON.parse(
+          JSON.stringify(settingsRepository.getDBSettings())
+        )
+        var that = this
+        if (db.isuse === '0') {
+          that.$Notice.error({
+            title: '提醒',
+            desc: '数据库未启用'
+          })
+          return
+        }
+
+        delete db.isuse
+        var connection = mysql.createConnection(db)
+        connection.connect()
+        connection.query(
+          stat, statdata,
+          function (error, results, fields) {
+            if (error) {
+              that.$Notice.error({
+                title: '提醒',
+                desc: '操作异常'
+              })
+              throw error
+            } else {
+              that.$Notice.success({
+                title: '提醒',
+                desc: '操作成功'
+              })
+            }
+            that.loadingPostUser = false
+            that.closeModal()
+            that.$refs['formInline'].resetFields()
+
+          }
+        )
+        connection.end()
+
+      },
+      visibleChange(isVisible) {
         if (!isVisible) {
           this.closeModal()
         } else {
-          if (!this.$store.state.modals.workerGroup.data.name) { return }
+          if (!this.$store.state.modals.workerGroup.data.name) {
+            return
+          }
           this.edit = true
           this.formInline.name = this.$store.state.modals.workerGroup.data.name
           this.formInline.contract = this.$store.state.modals.workerGroup.data.contract
@@ -166,16 +233,17 @@
           this.formInline.memo = this.$store.state.modals.workerGroup.data.memo
         }
       },
-      closeModal () {
+      closeModal() {
         this.$store.dispatch('hideWorkerGroup')
         this.handleReset('formInline')
         this.$emit('classNoGet')
       },
-      handleReset (name) {
+      handleReset(name) {
         this.$refs[name].resetFields()
       }
     }
   }
+
 </script>
 
 <style scoped>

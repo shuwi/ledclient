@@ -90,7 +90,8 @@
             delete db.isuse
             var connection = mysql.createConnection(db)
             var stat = 'INSERT INTO machine(port,ip,mname) VALUES (?,?,?)'
-            if (that.formInline.id !== '') { stat = `UPDATE machine SET port = ?, ip = ?, mname = ? WHERE id = ${that.formInline.id} ` }
+            if (that.formInline.id !== 0) { stat = `UPDATE machine SET port = ?, ip = ?, mname = ? WHERE id = ${that.formInline.id} ` }
+            console.log('stat = ',stat)
             connection.connect()
             connection.query(
               stat, [
@@ -102,6 +103,7 @@
                 if (error) {
                   throw error
                 } else {
+                  console.log('results = ',results)
                   that.$Notice.success({
                     title: '提醒',
                     desc: '操作成功'

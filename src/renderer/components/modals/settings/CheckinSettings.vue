@@ -9,7 +9,7 @@
       </FormItem>
       <FormItem>
         <Button shape="circle" type="primary" @click="handleSubmit('formValidate')" style="width:120px;">提交</Button>
-        <Button shape="circle" @click="handleReset('formValidate')" style="width:120px;margin-left:8px;">重置</Button>
+        <Button shape="circle" type="warning" @click="handleReset('formValidate')" style="width:120px;margin-left:8px;">重置</Button>
       </FormItem>
     </Form>
   </div>

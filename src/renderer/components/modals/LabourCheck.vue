@@ -38,7 +38,7 @@
         set: function () {}
       }
     },
-    data () {
+    data() {
       return {
         joinUser: {
           userId: '',
@@ -57,21 +57,21 @@
           }]
         },
         columns: [{
-          title: '姓名',
-          key: 'name'
-        },
-        {
-          title: '身份证号',
-          key: 'idcard'
-        }
+            title: '姓名',
+            key: 'name'
+          },
+          {
+            title: '身份证号',
+            key: 'userId'
+          }
         ]
       }
     },
     methods: {
-      resetInput () {
+      resetInput() {
         this.$refs['joinUser'].resetFields()
       },
-      visibleChange (checkvisible) {
+      visibleChange(checkvisible) {
         if (!checkvisible) {
           this.$emit('visibleChange', false)
           this.closeModal()
@@ -79,43 +79,50 @@
           this.$emit('visibleChange', true)
         }
       },
-      closeModal () {
+      closeModal() {
         this.loadingPostUser = false
         this.resetInput()
       },
-      handleSubmit (name) {
+      handleSubmit(name) {
         var d = this.status ? 'joinOutUser' : 'joinInUser'
-        console.log(d)
-
         var that = this
-  
-        console.log(that.status)
+        var postdata = []
+        that.userlist.forEach(function (value, index, arr) {
+          postdata.push({
+            userId: value.userId,
+            projectId: value.projectId,
+            joinStatus: that.status ? '退场' : '进场'
+          })
+        })
+        
         if (that.status) {
           that.loadingPostUser = true
           axios({
-            url: `http://192.168.20.190:8080/erp-web/client/${d}.whtml`,
-            data: {
-              joinUser: {
-                joinUser: [{
-                  userId: '533527198909210238',
-                  projectId: 2163,
-                  joinStatus: that.status ? '退场' : '进场'
-                }],
-                evaluation: '可还行？'
+              url: that.$store.state.modals.settings.baseURL + `${d}.whtml`,
+              data: {
+                joinUser: {
+                  joinUser: postdata,
+                  evaluation: that.joinUser.evaluation
+                }
+              },
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json',
+                token: that.token
               }
-            },
-            method: 'post',
-            headers: {
-              'Content-Type': 'application/json',
-              token: that.token
-            }
-          })
+            })
             .then(function (data) {
               console.log(data)
-              that.$Notice.success({
-                title: '提醒',
-                desc: data.data.msg
-              })
+              if (data.data.result === 0)
+                that.$Notice.success({
+                  title: '提醒',
+                  desc: data.data.message
+                })
+              else
+                that.$Notice.error({
+                  title: '提醒',
+                  desc: data.data.message
+                })
             })
             .catch(function (error) {
               that.$Notice.error({
@@ -133,29 +140,31 @@
         if (!that.status) {
           that.loadingPostUser = true
           axios({
-            url: `http://192.168.20.190:8080/erp-web/client/${d}.whtml`,
-            data: {
-              joinUser: {
-                joinUser: [{
-                  userId: '533527198909210238',
-                  projectId: 2163,
-                  joinStatus: that.status ? '退场' : '进场'
-                }],
-                evaluation: '可还行？'
+              url: that.$store.state.modals.settings.baseURL + `${d}.whtml`,
+              data: {
+                joinUser: {
+                  joinUser: postdata,
+                  evaluation: that.joinUser.evaluation
+                }
+              },
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json',
+                token: that.token
               }
-            },
-            method: 'post',
-            headers: {
-              'Content-Type': 'application/json',
-              token: that.token
-            }
-          })
+            })
             .then(function (data) {
               console.log(data)
-              that.$Notice.success({
-                title: '提醒',
-                desc: data.data.msg
-              })
+              if (data.data.result === 0)
+                that.$Notice.success({
+                  title: '提醒',
+                  desc: data.data.message
+                })
+              else
+                that.$Notice.error({
+                  title: '提醒',
+                  desc: data.data.message
+                })
             })
             .catch(function (error) {
               that.$Notice.error({
@@ -171,9 +180,10 @@
             })
         }
       },
-      handleReset (name) {
+      handleReset(name) {
         this.$refs[name].resetFields()
       }
     }
   }
+
 </script>

@@ -21,7 +21,7 @@
       </FormItem>
       <FormItem>
         <Button shape="circle" type="primary" @click="handleSubmit('formValidate')" style="width:110px;">提交</Button>
-        <Button shape="circle" @click="handleReset('formValidate')" style="width:110px;margin-left:8px;">重置</Button>
+        <Button shape="circle" type="warning" @click="handleReset('formValidate')" style="width:110px;margin-left:8px;">重置</Button>
         <Button shape="circle" @click="handleTest" style="width:110px;margin-left:8px;" type="info">测试连接</Button>
       </FormItem>
     </Form>
