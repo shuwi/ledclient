@@ -11,7 +11,8 @@
         </i-input>
       </FormItem>
       <FormItem prop="password" label="密码">
-        <i-input type="password" v-model="formInline.password" placeholder="密码" clearable style="width: 300px" @on-enter="handleSubmit('formInline')">
+        <i-input type="password" v-model="formInline.password" placeholder="密码" clearable style="width: 300px"
+          @on-enter="handleSubmit('formInline')">
           <Icon type="md-lock" slot="prefix"></Icon>
         </i-input>
       </FormItem>
@@ -23,7 +24,8 @@
         </RadioGroup>
       </FormItem>
       <FormItem>
-        <Button @click="handleSubmit('formInline')" shape="circle" style="width:260px;margin-left:0px;" type="primary" :loading="loading">登录</Button>
+        <Button @click="handleSubmit('formInline')" shape="circle" style="width:260px;margin-left:0px;" type="primary"
+          :loading="loading">登录</Button>
       </FormItem>
     </Form>
   </Modal>
@@ -35,15 +37,15 @@
   export default {
     computed: {
       isVisible: {
-        get () {
+        get() {
           return this.$store.state.modals.login.isVisible
         },
-        set (value) {
+        set(value) {
           this.$store.state.modals.login.isVisible = value
         }
       }
     },
-    data () {
+    data() {
       return {
         loading: false,
         formInline: {
@@ -58,22 +60,22 @@
             trigger: 'blur'
           }],
           password: [{
-            required: true,
-            message: '请输入密码',
-            trigger: 'blur'
-          },
-          {
-            type: 'string',
-            min: 6,
-            message: '密码至少6位',
-            trigger: 'blur'
-          }
+              required: true,
+              message: '请输入密码',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 6,
+              message: '密码至少6位',
+              trigger: 'blur'
+            }
           ]
         }
       }
     },
     methods: {
-      closeApp () {
+      closeApp() {
         this.$Modal.confirm({
           title: '确认',
           content: '<p>确认关闭并退出本系统？</p>',
@@ -82,31 +84,39 @@
           }
         })
       },
-      handleSubmit (name) {
+      handleSubmit(name) {
         this.$refs[name].validate((valid) => {
           var that = this
           if (valid) {
             that.$Spin.show()
             that.loading = true
             axios({
-              url: that.$store.state.modals.settings.baseURL + 'loginClient.whtml',
-              params: {
-                userName: that.formInline.user,
-                password: that.formInline.password
-              },
-              method: 'post',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-              }
-            })
+                url: that.$store.state.modals.settings.baseURL + 'loginClient.whtml',
+                params: {
+                  userName: that.formInline.user,
+                  password: that.formInline.password
+                },
+                method: 'post',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+                }
+              })
               .then(function (data) {
                 if (data.data.code === '0') {
-                  console.log('登录',data)
-                  that.$store.dispatch('setToken', data.data.token)
-                  that.$store.dispatch('setProjectId', data.data.project)
-                  that.$store.dispatch('setUserName', that.formInline.user)
-                  that.$store.dispatch('setMode', that.formInline.modal)
-                  that.visibleChange(false)
+                  if (data.data.project.projectProgress === '开工' || data.data.project.projectProgress == '003' ||
+                    data.data.project.projectProgress == '006') {
+                   
+                    that.$store.dispatch('setToken', data.data.token)
+                    that.$store.dispatch('setProjectId', data.data.project)
+                    that.$store.dispatch('setUserName', that.formInline.user)
+                    that.$store.dispatch('setMode', that.formInline.modal)
+                    that.visibleChange(false)
+                  } else {
+                    that.$Notice.error({
+                      title: '提醒',
+                      desc: '登录失败，可能项目未开工'
+                    })
+                  }
                 } else {
                   that.$Notice.error({
                     title: '提醒',
@@ -133,20 +143,25 @@
           }
         })
       },
-      visibleChange (isVisible) {
+      visibleChange(isVisible) {
         if (!isVisible) {
           this.closeModal()
         }
       },
-      closeModal () {
-        if (this.$store.state.modals.login.token !== '') { this.$store.dispatch('hideLoginModal') } else { this.$store.dispatch('showLoginModal') }
+      closeModal() {
+        if (this.$store.state.modals.login.token !== '') {
+          this.$store.dispatch('hideLoginModal')
+        } else {
+          this.$store.dispatch('showLoginModal')
+        }
         this.resetInput()
       },
-      resetInput () {
+      resetInput() {
         this.$refs['formInline'].resetFields()
       }
     }
   }
+
 </script>
 
 <style scoped>

@@ -92,7 +92,7 @@
         </div>
         <div>
           <FormItem label="暂住地址" prop="currentAddresss">
-            <Input v-model="user.currentAddresss" placeholder="请填写暂住地址" style="width:200px" clearable />
+            <Input v-model="user.currentAddresss" placeholder="请填写暂住地址" style="width:200px" clearable :maxlength="25"/>
           </FormItem>
         </div>
         <div>
@@ -136,7 +136,7 @@
         </div>
         <div>
           <FormItem label="紧急联系人" prop="urgentContractName">
-            <Input v-model="user.urgentContractName" placeholder="请填写紧急联系人" style="width:200px" />
+            <Input v-model="user.urgentContractName" placeholder="请填写紧急联系人" style="width:200px" :maxlength="8"/>
           </FormItem>
         </div>
         <div>
@@ -506,7 +506,7 @@
               .end : that.user.endnew
           }
           if (that.$store.state.modals.login.token === '') {
-            that.$Notice.success({
+            that.$Notice.info({
               title: '提醒',
               desc: '登录已过期，请重新登录'
             })
@@ -903,7 +903,7 @@
 
         var statdata = []
         statlist.forEach(function (v, i, a) {
-          console.log(`userdata[${v}] = `, userdata[v])
+
           statdata.push(userdata[v])
         })
         var mysql = require('mysql')
@@ -922,29 +922,91 @@
         delete db.isuse
         var connection = mysql.createConnection(db)
         connection.connect()
-        connection.query(
-          stat, statdata,
-          function (error, results, fields) {
-            if (error) {
-              that.$Notice.error({
-                title: '提醒',
-                desc: '操作异常'
-              })
-              throw error
-            } else {
-              that.$Notice.success({
-                title: '提醒',
-                desc: '操作成功'
-              })
+        if (that.$store.state.modals.newBoard.userid <= 0) {
+          connection.query(
+            `SELECT count(id) as total from worker where userId = '${userdata.userId}' and projectId = '${userdata.projectId}'`,
+            function (
+              error,
+              results,
+              fields
+            ) {
+              if (error) {
+                that.$Notice.error({
+                  title: '提醒',
+                  desc: '操作异常'
+                })
+                throw error
+              }
+              if (results[0].total > 0) {
+                console.log('更新语句：',`UPDATE worker SET ${statlist.join(' = ?, ')} = ? WHERE userId = '${userdata.userId}' and projectId = '${userdata.projectId}'`)
+                connection.query(
+                  `UPDATE worker SET ${statlist.join(' = ?, ')} = ? WHERE userId = '${userdata.userId}' and projectId = '${userdata.projectId}'`,
+                  statdata,
+                  function (error, results, fields) {
+                    if (error) {
+                      that.$Notice.error({
+                        title: '提醒',
+                        desc: '操作异常'
+                      })
+                      throw error
+                    } else {
+                      that.$Notice.success({
+                        title: '提醒',
+                        desc: '已存在该人员数据，修改成功'
+                      })
+                    }
+                    that.loadingPostUser = false
+                    that.closeModal()
+                    that.$refs['user'].resetFields()
+
+                  }
+                )
+              } else {
+                connection.query(
+                  `INSERT INTO worker(${statlist.join(',')}) VALUES (${new Array(statlist.length).fill('?').join(',')})`,statdata,
+                  function (error, results, fields) {
+                    if (error) {
+                      that.$Notice.error({
+                        title: '提醒',
+                        desc: '操作异常'
+                      })
+                      throw error
+                    } else {
+                      that.$Notice.success({
+                        title: '提醒',
+                        desc: '操作成功'
+                      })
+                    }
+                    that.loadingPostUser = false
+                    that.closeModal()
+                    that.$refs['user'].resetFields()
+                  })
+              }
+            })
+        } else {
+          connection.query(
+            stat, statdata,
+            function (error, results, fields) {
+              if (error) {
+                that.$Notice.error({
+                  title: '提醒',
+                  desc: '操作异常'
+                })
+                throw error
+              } else {
+                that.$Notice.success({
+                  title: '提醒',
+                  desc: '操作成功'
+                })
+              }
+              that.loadingPostUser = false
+              that.closeModal()
+              that.$refs['user'].resetFields()
+
             }
-            that.loadingPostUser = false
-            that.closeModal()
-            that.$refs['user'].resetFields()
-
-          }
-        )
-        connection.end()
-
+          )
+        }
+        
       },
       setWorkKindSelected(v) {
         this.user.workKind = v

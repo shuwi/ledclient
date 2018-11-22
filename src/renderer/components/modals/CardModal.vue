@@ -233,6 +233,7 @@
           if (that.workKindArr.length > 0) {
             return
           }
+          console.log('that.userDataSend = ',that.userDataSend)
           that.formInline.idNumber = that.userDataSend.userId
           that.formInline.name = that.userDataSend.name
           axios({

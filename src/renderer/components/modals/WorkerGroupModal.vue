@@ -143,7 +143,6 @@
               .finally(() => {
                 that.edit = false
                 that.closeModal()
-                that.$emit('classNoGet')
                 that.$Spin.hide()
               })
           } else {

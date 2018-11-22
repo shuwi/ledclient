@@ -34,12 +34,12 @@
       if (this.settings.darkTheme) {
         document.querySelector('body').classList.add('darkTheme')
       } */
-      var schedule = require('node-schedule')
+      /* var schedule = require('node-schedule')
       var rule = new schedule.RecurrenceRule()
       rule.second = 10
       var j = schedule.scheduleJob(rule, function () {
         console.log('现在时间：', new Date())
-      })
+      }) */
     }
   }
 

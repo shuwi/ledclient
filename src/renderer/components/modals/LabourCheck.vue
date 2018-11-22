@@ -26,6 +26,7 @@
 </template>
 
 <script>
+  import settingsRepository from '@/repositories/settingsRepository'
   import axios from 'axios'
   export default {
     props: ['token', 'projectId', 'status', 'checkvisible', 'userlist'],
@@ -81,20 +82,24 @@
       },
       closeModal() {
         this.loadingPostUser = false
+        this.$emit('visibleChange', false)
+        this.$emit('reloadPage')
         this.resetInput()
       },
       handleSubmit(name) {
         var d = this.status ? 'joinOutUser' : 'joinInUser'
         var that = this
         var postdata = []
+        var uids = []
         that.userlist.forEach(function (value, index, arr) {
           postdata.push({
             userId: value.userId,
             projectId: value.projectId,
             joinStatus: that.status ? '退场' : '进场'
           })
+          uids.push("'" + value.userId + "'")
         })
-        
+
         if (that.status) {
           that.loadingPostUser = true
           axios({
@@ -113,12 +118,43 @@
             })
             .then(function (data) {
               console.log(data)
-              if (data.data.result === 0)
+              //console.log(`UPDATE worker set inState = 1 WHERE userId in (${uids.join(',')})`)
+              if (data.data.result === 1) {
                 that.$Notice.success({
-                  title: '提醒',
+                  title: '提示',
                   desc: data.data.message
                 })
-              else
+                var mysql = require('mysql')
+                var db = JSON.parse(JSON.stringify(settingsRepository.getDBSettings()))
+                if (db.isuse === '0') {
+                  return
+                }
+                delete db.isuse
+                var connection = mysql.createConnection(db)
+                console.log(
+                  `UPDATE worker set inState = ${that.status ? '2' : '1'} WHERE userId in (${uids.join(',')})`)
+                connection.connect()
+                connection.query(
+                  `UPDATE worker set inState = ${that.status ? '2' : '1'} WHERE userId in (${uids.join(',')})`,
+                  function (
+                    error,
+                    results,
+                    fields
+                  ) {
+                    if (error) {
+                      return that.$Notice.error({
+                        title: '提醒',
+                        desc: `<p style="font-size:12px;">本地操作失败！</p>`
+                      })
+                    } else {
+                      that.$Notice.success({
+                        title: '提示',
+                        desc: `<p style="font-size:12px;">本地操作成功！</p>`
+                      })
+                    }
+                  })
+
+              } else
                 that.$Notice.error({
                   title: '提醒',
                   desc: data.data.message
@@ -155,12 +191,40 @@
             })
             .then(function (data) {
               console.log(data)
-              if (data.data.result === 0)
+              if (data.data.result === 1) {
                 that.$Notice.success({
-                  title: '提醒',
+                  title: '提示',
                   desc: data.data.message
                 })
-              else
+                var mysql = require('mysql')
+                var db = JSON.parse(JSON.stringify(settingsRepository.getDBSettings()))
+                if (db.isuse === '0') {
+                  return
+                }
+                delete db.isuse
+                var connection = mysql.createConnection(db)
+                
+                connection.connect()
+                connection.query(
+                  `UPDATE worker set inState = ${that.status ? '2' : '1'} WHERE userId in (${uids.join(',')})`,
+                  function (
+                    error,
+                    results,
+                    fields
+                  ) {
+                    if (error) {
+                      return that.$Notice.error({
+                        title: '提醒',
+                        desc: `<p style="font-size:12px;">本地操作失败！</p>`
+                      })
+                    } else {
+                      that.$Notice.success({
+                        title: '提示',
+                        desc: `<p style="font-size:12px;">本地操作成功！</p>`
+                      })
+                    }
+                  })
+              } else
                 that.$Notice.error({
                   title: '提醒',
                   desc: data.data.message

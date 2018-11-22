@@ -21,6 +21,36 @@
     name: 'CheckinSettings',
     computed: {},
     data() {
+      var validateIP = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入IP地址'));
+        }
+        setTimeout(() => {
+          var regg = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/
+          if (!regg.test(value)) {
+            callback(new Error('请输入正确的IP地址'));
+          } else {
+            callback();
+          }
+        }, 1000);
+      };
+      var validatePort = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入端口号'));
+        }
+        setTimeout(() => {
+          var gr = /^\d{4,5}$/
+          if (!gr.test(value)) {
+            callback(new Error('请输入有效数字值'));
+          } else {
+            if (value < 1024 || value > 65535) {
+              callback(new Error('端口号超出范围1024~65535'));
+            } else {
+              callback();
+            }
+          }
+        }, 1000);
+      };
       return {
         formValidate: {
           host: '',
@@ -28,29 +58,13 @@
         },
         ruleValidate: {
           host: [{
-              required: true,
-              message: '主机必填',
-              trigger: 'blur'
-            },
-            {
-              type: 'string',
-              min: 6,
-              message: '至少6个字符',
-              trigger: 'blur'
-            }
-          ],
+            validator: validateIP,
+            trigger: 'blur'
+          }],
           port: [{
-              required: true,
-              message: '端口号必填',
-              trigger: 'change'
-            },
-            {
-              type: 'string',
-              min: 4,
-              message: '至少4个字符',
-              trigger: 'blur'
-            }
-          ]
+            validator: validatePort,
+            trigger: 'blur'
+          }]
         }
       }
     },

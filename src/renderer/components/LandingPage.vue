@@ -9,7 +9,7 @@
               <i-circle :size="350" :trail-width="4" :stroke-width="5" :percent="100" stroke-linecap="round"
                 stroke-color="#2db7f5">
                 <div class="Circle-custom">
-                  <h1>{{project.projectProgress}}</h1>
+                  <h1>{{progress}}</h1>
                   <p>{{project.name}}</p>
                   <span>
                     {{project.place}}
@@ -36,8 +36,8 @@
                 <Table border width="100%" size="small" ref="selection" :columns="ucolumns" :data="udata"
                   @on-selection-change="laboursel"></Table>
                 <div style="margin:20px auto;width:100%;">
-                  <Button @click="handleSelectAll(true)" shape="circle" style="width:100px;">全选</Button>
-                  <Button @click="handleSelectAll(false)" shape="circle" style="width:100px;">取消全选</Button>
+                  <Button @click="handleSelectAll(true)" shape="circle" style="width:100px;" icon="md-checkmark">全选</Button>
+                  <Button @click="handleSelectAll(false)" shape="circle" style="width:100px;" icon="md-undo">取消全选</Button>
                 </div>
                 <div style="margin:10px auto;width:100%;">
                   <Page :current="current" :total="total" simple style="float:right;" @on-change="userlistChange"
@@ -64,8 +64,8 @@
               <Input search placeholder="请输入设备名称或序列号" style="width:200px;" suffix="ios-search" icon="ios-search"
                 clearable @on-change="search" />
               <Dropdown style="margin-left: 20px" @on-click="dm" trigger="click">
-                <Button type="info" shape="circle">
-                  命令集
+                <Button shape="circle">
+                  考勤机操作
                   <Icon type="ios-arrow-down" style="margin-left:6px;"></Icon>
                 </Button>
                 <DropdownMenu slot="list">
@@ -85,8 +85,8 @@
                 @on-select="machinesel"></Table>
             </div>
             <div style="margin:0 auto 20px auto;width:95%;">
-              <Button @click="handleSelectAllMachines(true)" shape="circle" style="width:100px;">全选</Button>
-              <Button @click="handleSelectAllMachines(false)" shape="circle" style="width:100px;">取消全选</Button>
+              <Button @click="handleSelectAllMachines(true)" shape="circle" style="width:100px;" icon="md-checkmark">全选</Button>
+              <Button @click="handleSelectAllMachines(false)" shape="circle" style="width:100px;" icon="md-undo">取消全选</Button>
             </div>
           </Tab-pane>
 
@@ -117,7 +117,7 @@
     <settings-modal></settings-modal>
     <move-to-board-modal></move-to-board-modal>
     <labour-check :status="status" :userlist="sellist" :checkvisible="checkvisible" :token="token" :projectId="projectId"
-      @visibleChange="visibleChange"></labour-check>
+      @visibleChange="visibleChange" @reloadPage="getNewData"></labour-check>
     <login-modal></login-modal>
     <worker-group-modal @classNoGet="classNoGet"></worker-group-modal>
     <machine-info-modal @refreshMachineList="refreshMachineList"></machine-info-modal>
@@ -280,8 +280,18 @@
             key: 'classNo'
           },
           {
-            title: '籍贯',
-            key: 'birthPlaceCode'
+            title: '进场状态',
+            key: 'inState',
+            render: (h, params) => {
+              return h('div', [
+                h('span', {
+                  props: {
+
+                  }
+                }),
+                params.row.inState > 1 ? '退场' : (params.row.inState < 1 ? '待进场' : '进场')
+              ]);
+            }
           },
           {
             title: '操作',
@@ -331,14 +341,15 @@
                       type: 'success',
                       size: 'small',
                       shape: 'circle',
-                      icon: 'md-wifi'
+                      icon: 'md-wifi',
+                      //disabled: params.row.checkinState === 1 ? true : false
                     },
                     style: {
                       width: '80px'
                     },
                     on: {
                       click: () => {
-                        this.checkin(params.index)
+                        this.checkin(params)
                       }
                     }
                   }, '登记')
@@ -367,14 +378,15 @@
                       type: 'success',
                       size: 'small',
                       shape: 'circle',
-                      icon: 'md-wifi'
+                      icon: 'md-wifi',
+                      disabled: params.row.checkinState === 1 ? true : false
                     },
                     style: {
                       width: '80px'
                     },
                     on: {
                       click: () => {
-                        this.checkin(params.index)
+                        this.checkin(params)
                       }
                     }
                   }, '登记')
@@ -425,6 +437,13 @@
       },
       project() {
         return this.$store.state.modals.login.projectId
+      },
+      progress() {
+        var pp = this.$store.state.modals.login.projectId.projectProgress
+        if (pp === '开工' || pp == '003' || pp == '006')
+          return '在建'
+        else
+          return '未开工'
       }
     },
     created() {
@@ -559,9 +578,15 @@
       },
       saveActiveBoard(boardId) {
         this.activeBoard = boardId
+
         if (this.activeBoard == 1 || this.activeBoard == 2) {
           var that = this
           if (that.$store.state.modals.login.token === '') {
+            that.$Notice.info({
+              title: '提醒',
+              desc: '登录已过期，请重新登录'
+            })
+            that.$store.dispatch('showLoginModal')
             return
           }
           // 获取项目下所有班组
@@ -643,7 +668,6 @@
           render: (h) => {
             return h('div', [
               h('Circle', {
-                'class': 'demo-spin-icon-load',
                 props: {
                   'stroke-color': '#ff5500',
                   percent: 18
@@ -670,42 +694,69 @@
 
         client.connect(port, host, function () {
           var utf8str =
-            `EnrollEmployee(id="${that.userdata[params].userId}" name="${that.userdata[params].name}" dutyrule="1" save="3")`
+            `EnrollEmployee(id="${params.row.userId}" name="${params.row.name}" dutyrule="1" save="3")`
+          console.log('utf8str = ', utf8str)
           client.write(iconv.encode(utf8str, 'GBK'))
           // 向端口写入数据到达服务端
         })
         client.on('data', function (data) {
 
-          if (typeof data === 'object') {
-            that.$Spin.hide()
-            that.$Modal.success({
-              title: '提示',
-              content: `<p style="font-size:12px;">操作成功！</p>`
-            })
-          } else if (data === 'Return(result="success" status="cancel")') {
+          if (data.toString() === 'Return(result="success" status="cancel")') {
             that.$Modal.warning({
               title: '提示',
               content: `<p style="font-size:12px;">操作已取消！</p>`
             })
-            console.log('操作已取消！')
+
+            that.$Spin.hide()
+          } else if (data.toString().length > 500) {
+            var mysql = require('mysql')
+            var db = JSON.parse(JSON.stringify(settingsRepository.getDBSettings()))
+            if (db.isuse === '0') {
+              return
+            }
+            delete db.isuse
+            var connection = mysql.createConnection(db)
+
+            connection.connect()
+            connection.query(
+              `UPDATE worker set checkinState = 1, checkinTime = NOW() WHERE userId = '${params.row.userId}' AND projectId = ${params.row.projectId}`,
+              function (
+                error,
+                results,
+                fields
+              ) {
+                if (error) throw error
+                else {
+                  that.$Modal.success({
+                    title: '提示',
+                    content: `<p style="font-size:12px;">登记成功！</p>`
+                  })
+                }
+              })
             that.$Spin.hide()
           } else {
             that.$Modal.warning({
               title: '提示',
               content: `<p style="font-size:12px;">设备故障或设备正忙！</p>`
             })
-            console.log('设备故障或设备正忙！')
+
             that.$Spin.hide()
           }
         })
         client.on('error', function (error) {
           // 错误出现之后关闭连接
           console.log('error:' + error)
-          client.destory()
+          that.$Modal.error({
+            title: '提示',
+            content: `设备${port}连接异常`
+          })
+          that.$Spin.hide()
+          //client.destory()
         })
         client.on('close', function () {
           // 正常关闭连接
           console.log('Connection closed')
+          that.$Spin.hide()
         })
       },
       test() {
@@ -728,7 +779,7 @@
 
         connection.connect()
         connection.query(
-          `SELECT count(id) as total from worker where userId like '${that.keyword}%' or mobile like '${that.keyword}%'`,
+          `SELECT count(id) as total from worker where userId like '${that.keyword}%' or mobile like '${that.keyword}%' or name like '${that.keyword}%'`,
           function (
             error,
             results,
@@ -738,7 +789,7 @@
             that.total = results[0].total
           })
         connection.query(
-          `SELECT * from worker where userId like '${that.keyword}%' or mobile like '${that.keyword}%' limit 0,${that.pagesize}`,
+          `SELECT * from worker where userId like '${that.keyword}%' or mobile like '${that.keyword}%' or name like '${that.keyword}%' limit 0,${that.pagesize}`,
           function (
             error,
             results,
@@ -829,7 +880,7 @@
         var connection = mysql.createConnection(db)
         connection.connect()
         connection.query(
-          `SELECT * from worker where userId like '${that.keyword}%' or mobile like '${that.keyword}%' or classNo like '${that.keyword}%' limit ${(num - 1) * that.pagesize},${that.pagesize}`,
+          `SELECT * from worker where userId like '${that.keyword}%' or mobile like '${that.keyword}%' or classNo like '${that.keyword}%' or name like '${that.keyword}%' limit ${(num - 1) * that.pagesize},${that.pagesize}`,
           function (
             error,
             results,
@@ -1004,7 +1055,13 @@
             var db = JSON.parse(
               JSON.stringify(settingsRepository.getDBSettings())
             )
-            if (db.isuse === '0') return
+            if (db.isuse === '0') {
+              that.$Notice.error({
+                title: '提醒',
+                desc: '数据库未启用！'
+              })
+              return
+            }
             delete db.isuse
             var connection = mysql.createConnection(db)
             connection.beginTransaction(function (err) {
@@ -1193,7 +1250,7 @@
     width: 100vw;
     left: 0px;
     padding: 0px;
-    background: #fff;
+    background: #f8f8f9;
     border-bottom: 1px solid #f0f0f0;
   }
 
@@ -1216,7 +1273,7 @@
   footer {
     position: fixed;
     bottom: 0;
-    border-top: 1px solid #f0f0f0;
+    background: #f8f8f9;
     color: rgb(150, 150, 150);
     text-align: center;
     width: 100%;
@@ -1264,7 +1321,7 @@
 
   .ivu-tabs-mini .ivu-tabs-tab {
     padding: 8px 26px;
-}
+  }
 
   .btn {
     margin-right: 10px;

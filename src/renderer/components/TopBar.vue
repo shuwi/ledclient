@@ -65,6 +65,8 @@
     color: rgb(49, 49, 49);
     font-size: 12px;
     font-weight: 500;
+    background: #f8f8f9;
+    border-bottom: 1px solid #e1e4e8;
   }
 
   .actionBtn-container {
