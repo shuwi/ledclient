@@ -19,6 +19,9 @@
       <FormItem label="数据库" prop="database">
         <Input v-model="formValidate.database" placeholder="输入数据库名"></Input>
       </FormItem>
+      <FormItem label="端口号" prop="databaseport">
+        <Input v-model="formValidate.databaseport" placeholder="输入端口号"></Input>
+      </FormItem>
       <FormItem>
         <Button shape="circle" type="primary" @click="handleSubmit('formValidate')" style="width:110px;">提交</Button>
         <Button shape="circle" type="warning" @click="handleReset('formValidate')" style="width:110px;margin-left:8px;">重置</Button>
@@ -87,7 +90,8 @@
           user: '',
           host: '',
           password: '',
-          database: ''
+          database: '',
+          databaseport: '3306'
         },
         ruleValidate: {
           user: [{
@@ -137,6 +141,18 @@
               message: '至少4个字符',
               trigger: 'blur'
             }
+          ],
+          databaseport: [{
+              required: true,
+              message: '数据库端口号必填',
+              trigger: 'blur'
+            },
+            {
+              type: 'string',
+              min: 4,
+              message: '至少4个字符',
+              trigger: 'blur'
+            }
           ]
         }
       }
@@ -154,6 +170,7 @@
             this.$store.dispatch('setDBUser', this.formValidate.user)
             this.$store.dispatch('setDBPassword', this.formValidate.password)
             this.$store.dispatch('setDBDataBase', this.formValidate.database)
+            this.$store.dispatch('setDBDataBasePort', this.formValidate.databaseport)
             this.showSuccessNotification()
             this.$store.dispatch('hideSettingsModal')
           } else {
@@ -171,7 +188,8 @@
           host: that.formValidate.host,
           user: that.formValidate.user,
           password: that.formValidate.password,
-          database: that.formValidate.database
+          database: that.formValidate.database,
+          port: that.formValidate.databaseport
         });
 
         connection.connect()
@@ -191,6 +209,7 @@
       this.formValidate.host = db.host
       this.formValidate.password = db.password
       this.formValidate.user = db.user
+      this.formValidate.databaseport = db.port
     }
   }
 

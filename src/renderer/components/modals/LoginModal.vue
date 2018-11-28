@@ -23,9 +23,16 @@
           <Radio label="2">本地化模式</Radio>
         </RadioGroup>
       </FormItem>
+      <FormItem prop="remember" label="记住账户">
+        <i-switch v-model="formInline.remember" size="large" true-value="1" false-value="0">
+          <span slot="open">记住</span>
+          <span slot="close">忽略</span>
+        </i-switch>
+      </FormItem>
       <FormItem>
         <Button @click="handleSubmit('formInline')" shape="circle" style="width:260px;margin-left:0px;" type="primary"
           :loading="loading">登录</Button>
+
       </FormItem>
     </Form>
   </Modal>
@@ -33,6 +40,7 @@
 
 <script>
   import axios from 'axios'
+  import settingsRepository from '@/repositories/settingsRepository'
   const remote = require('electron').remote
   export default {
     computed: {
@@ -49,9 +57,10 @@
       return {
         loading: false,
         formInline: {
-          user: 'NTJZXM002503',
-          password: '123456',
-          modal: '1'
+          user: '',
+          password: '',
+          modal: '1',
+          remember: '1'
         },
         ruleInline: {
           user: [{
@@ -73,6 +82,12 @@
           ]
         }
       }
+    },
+    mounted() {
+      var log = settingsRepository.getUserlog()
+      this.formInline.user = log.username
+      this.formInline.password = log.password
+      this.formInline.modal = log.mode
     },
     methods: {
       closeApp() {
@@ -102,14 +117,24 @@
                 }
               })
               .then(function (data) {
+                console.log(data)
                 if (data.data.code === '0') {
                   if (data.data.project.projectProgress === '开工' || data.data.project.projectProgress == '003' ||
                     data.data.project.projectProgress == '006') {
-                   
+
                     that.$store.dispatch('setToken', data.data.token)
                     that.$store.dispatch('setProjectId', data.data.project)
                     that.$store.dispatch('setUserName', that.formInline.user)
                     that.$store.dispatch('setMode', that.formInline.modal)
+                    if (that.formInline.remember === '1') {
+                      that.$store.dispatch('setUserLoginName', that.formInline.user)
+                      that.$store.dispatch('setUserLoginPassword', that.formInline.password)
+                      that.$store.dispatch('setUserLoginMode', that.formInline.modal)
+                    } else {
+                      that.$store.dispatch('setUserLoginName', '')
+                      that.$store.dispatch('setUserLoginPassword', '')
+                      that.$store.dispatch('setUserLoginMode', '1')
+                    }
                     that.visibleChange(false)
                   } else {
                     that.$Notice.error({

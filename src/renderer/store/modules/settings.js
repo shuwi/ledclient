@@ -14,6 +14,7 @@ const state = {
   user: 'root',
   password: 'demo123',
   database: 'labour',
+  databaseport: 3306,
   chechinhost: '192.168.20.5',
   checkinport: 9922
 }
@@ -57,6 +58,9 @@ const mutations = {
   },
   SET_DATABASE (state, val) {
     state.database = val
+  },
+  SET_DATABASEPORT (state, val) {
+    state.databaseport = val
   },
   SET_CHECKINHOST (state, val) {
     state.checkinhost = val
@@ -168,6 +172,14 @@ const actions = {
       database
     })
   },
+  setDBDataBasePort ({
+    commit
+  }, port) {
+    commit('SET_DATABASEPORT', port)
+    settingsRepository.updateDBSettings({
+      port
+    })
+  },
   setCheckinHost ({
     commit
   }, checkinhost) {
@@ -182,6 +194,27 @@ const actions = {
     commit('SET_CHECKINPORT', checkinport)
     settingsRepository.updateCheckinSettings({
       checkinport
+    })
+  },
+  setUserLoginMode ({
+    commit
+  }, mode) {
+    settingsRepository.updateUserlog({
+      mode
+    })
+  },
+  setUserLoginName ({
+    commit
+  }, username) {
+    settingsRepository.updateUserlog({
+      username
+    })
+  },
+  setUserLoginPassword ({
+    commit
+  }, password) {
+    settingsRepository.updateUserlog({
+      password
     })
   }
 }

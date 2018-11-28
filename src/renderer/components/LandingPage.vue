@@ -4,7 +4,7 @@
       <i-col span="24" style="height: 100%;">
         <Tabs v-model="activeBoard" size="small" @on-click="saveActiveBoard" @dblclick.native="handleDblClick" :class="{'fixedTabs' : settings.stickBoardsOnTop}"
           type="line">
-          <Tab-pane label="项目信息" class="tpane" icon="ios-keypad">
+          <Tab-pane label="项目信息" class="tpane" icon="logo-buffer">
             <div style="width:350px;margin:10px auto;">
               <i-circle :size="350" :trail-width="4" :stroke-width="5" :percent="100" stroke-linecap="round"
                 stroke-color="#2db7f5">
@@ -18,7 +18,7 @@
               </i-circle>
             </div>
           </Tab-pane>
-          <Tab-pane label="人员信息" class="tpane" icon="ios-keypad">
+          <Tab-pane label="人员信息" class="tpane" icon="md-person">
             <div style="display:flex;flex-direction:row;align-items:center;height:100%;align-items: flex-start;margin:0px auto;">
               <div style="order:1;flex:1;width:250px;flex-shrink:0;height:100%;backgrouond:#ccc;">
                 <Tree :data="treedata" style="width:250px;height:100%;border-right:1px dashed #e8eaec;padding-left:10px;line-height:2em;"
@@ -46,7 +46,7 @@
               </div>
             </div>
           </Tab-pane>
-          <Tab-pane label="班组信息" class="tpane" icon="ios-keypad">
+          <Tab-pane label="班组信息" class="tpane" icon="md-people">
             <div style="margin:0 auto 20px auto;width:95%;">
               <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showWorkerGroup" v-if="canAddUser">添加班组</Button>
             </div>
@@ -54,7 +54,7 @@
               <Table border :columns="classNoColumns" :data="classNoArr" width="100%" size="small"></Table>
             </div>
           </Tab-pane>
-          <Tab-pane label="考勤设备" class="tpane" icon="ios-keypad">
+          <Tab-pane label="考勤设备" class="tpane" icon="md-appstore">
             <div style="margin:0 auto 20px auto;width:95%;">
               <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showMachineInfo">添加设备</Button>
               <Button shape="circle" icon="md-create" class="btn" type="warning" @click="editMachineInfo">修改设备</Button>
@@ -341,7 +341,7 @@
                       type: 'success',
                       size: 'small',
                       shape: 'circle',
-                      icon: 'md-wifi',
+                      icon: 'md-wifi'
                       //disabled: params.row.checkinState === 1 ? true : false
                     },
                     style: {
@@ -378,8 +378,8 @@
                       type: 'success',
                       size: 'small',
                       shape: 'circle',
-                      icon: 'md-wifi',
-                      disabled: params.row.checkinState === 1 ? true : false
+                      icon: 'md-wifi'
+                      //disabled: params.row.checkinState === 1 ? true : false
                     },
                     style: {
                       width: '80px'
@@ -1027,6 +1027,31 @@
         var that = this
         that.$Spin.show()
         axios({
+            url: that.$store.state.modals.settings.baseURL + 'getClassNoInfo.whtml',
+            method: 'get',
+            params: {
+              projectId: that.$store.state.modals.login.projectId.id
+            },
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'token': that.$store.state.modals.login.token
+            }
+          })
+          .then(function (data) {
+            console.log('getClassNoInfo.whtml = ', data.data.group)
+            var tt = []
+            data.data.group.forEach(function (value, index, array) {
+              tt.push({
+                title: value.name
+              })
+            })
+            that.treedata[0].children = tt
+            that.classNoArr = data.data.group
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
+        axios({
             url: that.$store.state.modals.settings.baseURL + 'queryUserProjectRole.whtml',
             method: 'post',
             data: {
@@ -1050,7 +1075,7 @@
               return
             }
             var workers = data.data.list.classInfo
-
+            console.log('workers:', workers)
             var mysql = require('mysql')
             var db = JSON.parse(
               JSON.stringify(settingsRepository.getDBSettings())
@@ -1101,7 +1126,10 @@
                         function (error, results, fields) {
                           if (error) {
                             return connection.rollback(function () {
-                              throw error
+                              that.$Notice.error({
+                                title: '提醒',
+                                desc: `用户${value.idcard} ${value.name} 入库失败，可能因为信息不完整`
+                              })
                             })
                           }
                         })

@@ -1,5 +1,5 @@
 {
-  "activeBoard": 1,
+  "activeBoard": 3,
   "boards": [
     {
       "id": "default",
@@ -20,10 +20,16 @@
     "host": "localhost",
     "user": "root",
     "password": "demo123",
-    "database": "labour"
+    "database": "labour",
+    "port": "3306"
   },
   "checkinSettings": {
     "checkinhost": "192.168.20.5",
-    "checkinport": "9922"
+    "checkinport": 9922
+  },
+  "userlog": {
+    "mode": "0",
+    "username": "YCJZXM000897",
+    "password": "123456"
   }
 }
