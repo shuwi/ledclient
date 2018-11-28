@@ -1,6 +1,14 @@
 ## License
 It's free and opensource application under **MIT** license. You can do whatever you want as long as you include the original copyright and license notice in any copy of the software/source
 
+## Screenshots
+<p align="center">
+    <img src="https://github.com/shuwi/ledclient/raw/master/a.png" width="800px">
+    <img src="https://github.com/shuwi/ledclient/raw/master/b.png" width="800px">
+    <img src="https://github.com/shuwi/ledclient/raw/master/c.png" width="800px">
+    <img src="https://github.com/shuwi/ledclient/raw/master/d.png" width="800px">
+</p>
+
 #### Build Setup
 You can build it yourself instead of downloading executable:
 
