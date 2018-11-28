@@ -36,7 +36,7 @@ function createWindow () {
   mainWindow = new BrowserWindow(windowConfig)
 
   mainWindow.loadURL(winURL)
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   if (process.platform === 'darwin') {
     Menu.setApplicationMenu(createMenuOnMac())
