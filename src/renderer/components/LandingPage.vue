@@ -26,12 +26,13 @@
               </div>
               <div style="order:2;padding:10px 25px;flex-grow:2;overflow:auto;margin:0;flex-shrink:1;">
                 <div style="margin:0 auto 20px auto;width:100%;">
-                  <Input search placeholder="请输入关键字查询" style="width:300px;margin:0 10px 0 0;" suffix="ios-search" icon="ios-search"
-                    clearable @on-search="search" :value="keyword" />
+                  <Input placeholder="请输入姓名或身份证号、手机号后查询" style="width:300px;margin:0 10px 0 0;" suffix="ios-search" icon="ios-search"
+                    clearable v-model="keyword" />
+                  <Button shape="circle" icon="md-search" class="btn" @click="search">查询</Button>
                   <Button shape="circle" icon="md-add" class="btn" type="primary" @click="showUserModal" v-if="canAddUser">添加人员</Button>
                   <Button shape="circle" icon="md-arrow-round-back" class="btn" type="info" @click="labourout">人员退场</Button>
                   <Button shape="circle" icon="md-arrow-round-forward" class="btn" type="success" @click="labourin">人员进场</Button>
-                  <Button shape="circle" icon="ios-refresh" class="btn" type="warning" @click="testone">更新数据</Button>
+                  <Button shape="circle" icon="ios-refresh" class="btn" type="warning" @click="testone" :loading="getloading">更新数据</Button>
                 </div>
                 <Table border width="100%" size="small" ref="selection" :columns="ucolumns" :data="udata"
                   @on-selection-change="laboursel"></Table>
@@ -155,6 +156,7 @@
     name: 'landing-page',
     data() {
       return {
+        getloading: false,
         singlemachine: {},
         machinedel: false,
         machinesellist: [],
@@ -759,17 +761,10 @@
           that.$Spin.hide()
         })
       },
-      test() {
-        this.$Notice.success({
-          title: '成功',
-          desc: 'Here is the notification description. Here is the notification description. '
-        })
-      },
       search(e) {
         var mysql = require('mysql')
         var that = this
         that.$Loading.start()
-        that.keyword = e
         var db = JSON.parse(JSON.stringify(settingsRepository.getDBSettings()))
         if (db.isuse === '0') {
           return
@@ -1025,7 +1020,7 @@
       //线上拉取人员数据
       testone() {
         var that = this
-        that.$Spin.show()
+        that.getloading = true
         axios({
             url: that.$store.state.modals.settings.baseURL + 'getClassNoInfo.whtml',
             method: 'get',
@@ -1110,8 +1105,8 @@
                         `INSERT INTO worker(userId,name,mobile,job,groupname,addtime,checkinState,checkinTime,
                       photo,projectId,workDate,urgentContractCellphone,urgentContractName,noBadMedicalHistory,
                       cultureLevelType,joinedTime,politicsType,birthPlaceCode,nation,idCardType,
-                      classNo,currentAddresss,personType,homeAddress,workKind,birthday,gender,ptype,beginnew,endnew) 
-                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                      classNo,currentAddresss,personType,homeAddress,workKind,birthday,gender,ptype,beginnew,endnew,inState) 
+                      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
                         [value.idcard, value.name, value.mobile, value.classNo, v.name, new Date(), 0,
                           null,
                           value.photo, that.$store.state.modals.login.projectId.id, value.workDate, value
@@ -1121,7 +1116,35 @@
                           value.nation, value.idCardType,
                           value.classNo, value.currentAddresss, value.personType, value.homeAddress,
                           value.workKind, value.birthday, value.gender, value.ptype, value.planBeginDate,
-                          value.planEndDate
+                          value.planEndDate, value.joinStatus
+                        ],
+                        function (error, results, fields) {
+                          if (error) {
+                            console.log('err:',error)
+                            return connection.rollback(function () {
+                              that.$Notice.error({
+                                title: '提醒',
+                                desc: `用户${value.idcard} ${value.name} 入库失败，可能因为信息不完整`
+                              })
+                            })
+                          }
+                        })
+                    } else {
+                      connection.query(
+                        `UPDATE worker SET name=?,mobile=?,job=?,groupname=?,addtime=?,checkinState=?,checkinTime=?,
+                      photo=?,workDate=?,urgentContractCellphone=?,urgentContractName=?,noBadMedicalHistory=?,
+                      cultureLevelType=?,joinedTime=?,politicsType=?,birthPlaceCode=?,nation=?,idCardType=?,
+                      classNo=?,currentAddresss=?,personType=?,homeAddress=?,workKind=?,birthday=?,gender=?,
+                      ptype=?,beginnew=?,endnew=?,inState=? WHERE userId=? AND projectId=?`,
+                        [value.name, value.mobile, value.classNo, v.name, new Date(), 0, null,
+                          value.photo, value.workDate, value.urgentContractCellphone, value.urgentContractName,
+                          value.noBadMedicalHistory,
+                          value.cultureLevelType, value.joinedTime, value.politicsType, value.birthPlaceCode,
+                          value.nation, value.idCardType,
+                          value.classNo, value.currentAddresss, value.personType, value.homeAddress,
+                          value.workKind, value.birthday, value.gender,
+                          value.ptype, value.planBeginDate, value.planEndDate, value.joinStatus, value.idcard,
+                          that.$store.state.modals.login.projectId.id
                         ],
                         function (error, results, fields) {
                           if (error) {
@@ -1152,13 +1175,14 @@
                 title: '提醒',
                 desc: '数据获取成功！'
               })
+              that.getloading = false
             })
             // connection.end()
           })
           .catch(function (error) {
             console.log(error)
           })
-        that.$Spin.hide()
+        
       },
       editUser(param) {
         if (this.$store.state.modals.login.mode === '0') {

@@ -899,7 +899,7 @@
 
         if (this.$store.state.modals.newBoard.userid > 0)
           stat =
-          `UPDATE worker SET ${statlist.join(' = ?, ')} = ? WHERE id = '${this.$store.state.modals.newBoard.userid}' `
+          `UPDATE worker SET ${statlist.join(' = ?, ')} = ? WHERE id = '${this.$store.state.modals.newBoard.userid}'`
 
         var statdata = []
         statlist.forEach(function (v, i, a) {
@@ -938,7 +938,7 @@
                 throw error
               }
               if (results[0].total > 0) {
-                console.log('更新语句：',`UPDATE worker SET ${statlist.join(' = ?, ')} = ? WHERE userId = '${userdata.userId}' and projectId = '${userdata.projectId}'`)
+                
                 connection.query(
                   `UPDATE worker SET ${statlist.join(' = ?, ')} = ? WHERE userId = '${userdata.userId}' and projectId = '${userdata.projectId}'`,
                   statdata,

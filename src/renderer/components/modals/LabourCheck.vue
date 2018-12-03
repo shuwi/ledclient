@@ -227,7 +227,7 @@
               } else
                 that.$Notice.error({
                   title: '提醒',
-                  desc: data.data.message
+                  desc: '操作失败，可能未录入人脸'
                 })
             })
             .catch(function (error) {
